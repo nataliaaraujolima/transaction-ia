@@ -1,31 +1,6 @@
-export const TRANSACTION_TYPES = ["DEPOSIT", "EXPENSE", "INVESTMENT"] as const;
-export type TransactionType = (typeof TRANSACTION_TYPES)[number];
+import type { Transaction } from "@prisma/client";
 
-export const TRANSACTION_CATEGORIES = [
-  "HOUSING",
-  "TRANSPORTATION",
-  "FOOD",
-  "ENTERTAINMENT",
-  "HEALTH",
-  "UTILITY",
-  "SALARY",
-  "EDUCATION",
-  "OTHER",
-] as const;
-export type TransactionCategory = (typeof TRANSACTION_CATEGORIES)[number];
-
-export const TRANSACTION_PAYMENT_METHODS = [
-  "CREDIT_CARD",
-  "DEBIT_CARD",
-  "BANK_TRANSFER",
-  "BANK_SLIP",
-  "CASH",
-  "PIX",
-  "OTHER",
-] as const;
-export type TransactionPaymentMethod = (typeof TRANSACTION_PAYMENT_METHODS)[number];
-
-export const TRANSACTION_CATEGORY_LABELS: Record<TransactionCategory, string> = {
+export const TRANSACTION_CATEGORY_LABELS: Record<Transaction["category"], string> = {
   EDUCATION: "Educação",
   ENTERTAINMENT: "Entretenimento",
   FOOD: "Alimentação",
@@ -37,7 +12,7 @@ export const TRANSACTION_CATEGORY_LABELS: Record<TransactionCategory, string> = 
   UTILITY: "Utilidades",
 };
 
-export const TRANSACTION_PAYMENT_METHOD_LABELS: Record<TransactionPaymentMethod, string> = {
+export const TRANSACTION_PAYMENT_METHOD_LABELS: Record<Transaction["paymentMethod"], string> = {
   CASH: "Dinheiro",
   CREDIT_CARD: "Cartão de Crédito",
   DEBIT_CARD: "Cartão de Débito",
@@ -47,7 +22,7 @@ export const TRANSACTION_PAYMENT_METHOD_LABELS: Record<TransactionPaymentMethod,
   OTHER: "Outro",
 };
 
-export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
+export const TRANSACTION_TYPE_LABELS: Record<Transaction["type"], string> = {
   DEPOSIT: "Depósito",
   EXPENSE: "Gasto",
   INVESTMENT: "Investimento",

@@ -1,12 +1,13 @@
 "use client";
 
+import type { Transaction } from "@prisma/client";
 import { DataTable } from "@/_components/ui/data-table";
-import { type TransactionTableRow, transactionColumns } from "../_columns";
+import { transactionColumns } from "../_columns";
 
 interface TransactionTableProps {
-  transactions: TransactionTableRow[];
+  transactions: Transaction[];
 }
 
-export function TransactionTable({ transactions }: TransactionTableProps) {
+export const TransactionTable = ({ transactions }: TransactionTableProps) => {
   return <DataTable columns={transactionColumns} data={transactions} />;
-}
+};

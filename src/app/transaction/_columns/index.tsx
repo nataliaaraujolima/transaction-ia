@@ -1,29 +1,16 @@
 "use client";
 
+import type { Transaction } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import { PencilIcon, TrashIcon } from "lucide-react";
-
 import { Button } from "@/_components/ui/button";
 import {
   TRANSACTION_CATEGORY_LABELS,
   TRANSACTION_PAYMENT_METHOD_LABELS,
-  type TransactionCategory,
-  type TransactionPaymentMethod,
-  type TransactionType,
 } from "@/app/_constants/transactions";
 import { TransactionTypeBadge } from "../_components/type-badge";
 
-export type TransactionTableRow = {
-  id: string;
-  name: string;
-  type: TransactionType;
-  amount: number;
-  category: TransactionCategory;
-  paymentMethod: TransactionPaymentMethod;
-  date: string;
-};
-
-export const transactionColumns: ColumnDef<TransactionTableRow>[] = [
+export const transactionColumns: ColumnDef<Transaction>[] = [
   {
     accessorKey: "name",
     header: "Nome",
