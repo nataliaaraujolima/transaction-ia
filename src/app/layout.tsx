@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
+import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -10,8 +10,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Finance IA",
-  description: "Finance IA - Boilerplate",
+  title: "Transaction IA",
+  description: "Transaction IA - Boilerplate",
 };
 
 export default function RootLayout({

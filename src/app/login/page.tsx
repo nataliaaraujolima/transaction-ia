@@ -14,7 +14,13 @@ const LoginPage = async () => {
   return (
     <div className="flex flex-1 items-center justify-center">
       <main className="flex flex-col items-center gap-6 text-center">
-        <Image src="/transaction_ia_logo.webp" alt="Finance IA" width={100} height={100} priority />
+        <Image
+          src="/transaction_ia_logo.webp"
+          alt="Transaction IA"
+          width={100}
+          height={100}
+          priority
+        />
 
         <h1 className="text-3xl font-bold tracking-tight">Bem-vindo ao Transaction IA</h1>
         <div className="text-center max-w-4xl">
