@@ -40,10 +40,7 @@ export default function StyleGuidePage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {colors.map((color) => (
               <div key={color.hex} className="overflow-hidden rounded-lg border border-border">
-                <div
-                  className="flex h-20 items-end p-3"
-                  style={{ backgroundColor: color.hex }}
-                >
+                <div className="flex h-20 items-end p-3" style={{ backgroundColor: color.hex }}>
                   <span
                     className="text-xs font-mono"
                     style={{ color: color.textLight ? "#FFFFFF" : "#000000" }}
@@ -65,13 +62,9 @@ export default function StyleGuidePage() {
           <div className="space-y-6">
             {typography.map((item) => (
               <div key={item.label} className="border-b border-border pb-4">
-                <p className={item.className}>
-                  The quick brown fox jumps over the lazy dog
-                </p>
+                <p className={item.className}>The quick brown fox jumps over the lazy dog</p>
                 <div className="mt-2 flex items-center gap-4">
-                  <span className="text-muted-foreground text-xs font-mono">
-                    {item.label}
-                  </span>
+                  <span className="text-muted-foreground text-xs font-mono">{item.label}</span>
                   <span className="text-muted-foreground text-xs font-mono">
                     {item.size} / {item.weight}
                   </span>
