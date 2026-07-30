@@ -2,7 +2,7 @@
 
 import type { Transaction } from "@prisma/client";
 import { DataTable } from "@/_components/ui/data-table";
-import { transactionColumns } from "../_columns";
+import { transactionColumns } from "./transaction-columns";
 
 interface TransactionTableProps {
   transactions: Transaction[];

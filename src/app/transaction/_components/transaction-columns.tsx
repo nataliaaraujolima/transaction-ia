@@ -7,8 +7,8 @@ import { Button } from "@/_components/ui/button";
 import {
   TRANSACTION_CATEGORY_LABELS,
   TRANSACTION_PAYMENT_METHOD_LABELS,
-} from "@/app/_constants/transactions";
-import { TransactionTypeBadge } from "../_components/type-badge";
+} from "@/app/transaction/_constants/transactions";
+import { TransactionTypeBadge } from "./type-badge";
 
 export const transactionColumns: ColumnDef<Transaction>[] = [
   {
