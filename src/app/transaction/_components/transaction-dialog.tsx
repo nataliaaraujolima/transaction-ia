@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TransactionCategory, TransactionPaymentMethod, TransactionType } from "@prisma/client";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+import { MoneyInput } from "@/_components/common/money-input";
 import { Button } from "@/_components/ui/button";
 import {
   Dialog,
@@ -140,9 +141,9 @@ export function UpsertTransactionDialog({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="transaction-form-amount">Valor</FieldLabel>
-                  <Input
+                  <MoneyInput
                     id="transaction-form-amount"
-                    type="number"
+                    type="text"
                     step="0.01"
                     min="0"
                     aria-invalid={fieldState.invalid}
