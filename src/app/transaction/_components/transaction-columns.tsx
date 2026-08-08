@@ -10,7 +10,11 @@ import {
 } from "@/app/transaction/_constants/transactions";
 import { TransactionTypeBadge } from "./type-badge";
 
-export const transactionColumns: ColumnDef<Transaction>[] = [
+export type SerializedTransaction = Omit<Transaction, "amount"> & {
+  amount: number;
+};
+
+export const transactionColumns: ColumnDef<SerializedTransaction>[] = [
   {
     accessorKey: "name",
     header: "Nome",
@@ -48,7 +52,7 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
       new Intl.NumberFormat("pt-BR", {
         style: "currency",
         currency: "BRL",
-      }).format(Number(transaction.amount)),
+      }).format(transaction.amount),
   },
   {
     id: "actions",

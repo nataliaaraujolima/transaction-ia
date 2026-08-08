@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/_components/ui/select";
+import { addTransaction } from "@/app/_actions/add-transaction";
 import {
   TRANSACTION_CATEGORY_OPTIONS,
   TRANSACTION_PAYMENT_METHOD_OPTIONS,
@@ -80,7 +81,7 @@ export function UpsertTransactionDialog({
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: 50,
+      amount: 0,
       category: TransactionCategory.OTHER,
       date: new Date(),
       name: "",
@@ -90,11 +91,15 @@ export function UpsertTransactionDialog({
     },
   });
 
-  const onSubmit = (data: FormSchema) => {
-    // TODO: persist via upsertTransaction({ ...data, id: transactionId })
-    console.log({ ...data, id: transactionId });
-    setIsOpen(false);
-    form.reset();
+  const onSubmit = async (data: FormSchema) => {
+    try {
+      await addTransaction(data);
+
+      setIsOpen(false);
+      form.reset();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const isUpdate = Boolean(transactionId);
@@ -142,21 +147,11 @@ export function UpsertTransactionDialog({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="transaction-form-amount">Valor</FieldLabel>
                   <MoneyInput
-                    id="transaction-form-amount"
-                    type="text"
-                    step="0.01"
-                    min="0"
-                    aria-invalid={fieldState.invalid}
                     placeholder="Digite o valor..."
-                    name={field.name}
-                    ref={field.ref}
+                    value={field.value}
+                    onValueChange={({ floatValue }) => field.onChange(floatValue ?? undefined)}
                     onBlur={field.onBlur}
                     disabled={field.disabled}
-                    value={field.value ?? ""}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      field.onChange(value === "" ? undefined : Number(value));
-                    }}
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
