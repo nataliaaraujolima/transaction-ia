@@ -1,10 +1,7 @@
 "use client";
 
-import { DataTable } from "@/_components/ui/data-table";
-import {
-  type SerializedTransaction,
-  transactionColumns,
-} from "./transaction-columns";
+import { DataTable } from "../../shared/_components/ui/data-table";
+import { type SerializedTransaction, transactionColumns } from "./transaction-columns";
 
 interface TransactionTableProps {
   transactions: SerializedTransaction[];

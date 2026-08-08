@@ -7,7 +7,7 @@ import type {
   TransactionType,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { db } from "@/app/_lib/prisma";
+import { db } from "../../../_lib/prisma";
 import { addTransactionSchema } from "./schema";
 
 interface AddTransactionParams {

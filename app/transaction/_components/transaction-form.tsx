@@ -2,10 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TransactionCategory, TransactionPaymentMethod, TransactionType } from "@prisma/client";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, Form, useForm } from "react-hook-form";
 import { z } from "zod";
-import { MoneyInput } from "@/_components/common/money-input";
-import { Button } from "@/_components/ui/button";
+import { MoneyInput } from "../../shared/_components/common/money-input";
+import { Button } from "../../shared/_components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -14,24 +14,24 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/_components/ui/dialog";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/_components/ui/field";
-import { Input } from "@/_components/ui/input";
+} from "../../shared/_components/ui/dialog";
+import { Field, FieldError, FieldGroup, FieldLabel } from "../../shared/_components/ui/field";
+import { Input } from "../../shared/_components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/_components/ui/select";
-import { addTransaction } from "@/app/_actions/add-transaction";
+} from "../../shared/_components/ui/select";
+import { addTransaction } from "../_actions/add-transaction";
 import {
   TRANSACTION_CATEGORY_OPTIONS,
   TRANSACTION_PAYMENT_METHOD_OPTIONS,
   TRANSACTION_TYPE_OPTIONS,
-} from "@/app/transaction/_constants/transactions";
+} from "../_constants/transactions";
 
-interface UpsertTransactionDialogProps {
+interface TransactionFormProps {
   isOpen: boolean;
   defaultValues?: Partial<FormSchema>;
   transactionId?: string;
@@ -72,13 +72,13 @@ function formatDateInput(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-export function UpsertTransactionDialog({
+export function TransactionForm({
   isOpen,
   defaultValues,
   transactionId,
   setIsOpen,
-}: UpsertTransactionDialogProps) {
-  const form = useForm<FormSchema>({
+}: TransactionFormProps) {
+  const { control, reset } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: 0,
@@ -96,7 +96,7 @@ export function UpsertTransactionDialog({
       await addTransaction(data);
 
       setIsOpen(false);
-      form.reset();
+      reset();
     } catch (error) {
       console.error(error);
     }
@@ -110,7 +110,7 @@ export function UpsertTransactionDialog({
       onOpenChange={(open) => {
         setIsOpen(open);
         if (!open) {
-          form.reset();
+          reset();
         }
       }}
     >
@@ -120,11 +120,17 @@ export function UpsertTransactionDialog({
           <DialogDescription>Insira as informações abaixo</DialogDescription>
         </DialogHeader>
 
-        <form id="transaction-form" onSubmit={form.handleSubmit(onSubmit)}>
+        <Form
+          id="transaction-form"
+          control={control}
+          onSubmit={async ({ data }) => {
+            await onSubmit(data);
+          }}
+        >
           <FieldGroup>
             <Controller
               name="name"
-              control={form.control}
+              control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="transaction-form-name">Título</FieldLabel>
@@ -142,7 +148,7 @@ export function UpsertTransactionDialog({
 
             <Controller
               name="amount"
-              control={form.control}
+              control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="transaction-form-amount">Valor</FieldLabel>
@@ -160,7 +166,7 @@ export function UpsertTransactionDialog({
 
             <Controller
               name="type"
-              control={form.control}
+              control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="transaction-form-type">Tipo da transação</FieldLabel>
@@ -189,7 +195,7 @@ export function UpsertTransactionDialog({
 
             <Controller
               name="category"
-              control={form.control}
+              control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="transaction-form-category">
@@ -220,7 +226,7 @@ export function UpsertTransactionDialog({
 
             <Controller
               name="paymentMethod"
-              control={form.control}
+              control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="transaction-form-payment-method">
@@ -254,7 +260,7 @@ export function UpsertTransactionDialog({
 
             <Controller
               name="date"
-              control={form.control}
+              control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="transaction-form-date">Data</FieldLabel>
@@ -277,7 +283,7 @@ export function UpsertTransactionDialog({
               )}
             />
           </FieldGroup>
-        </form>
+        </Form>
 
         <DialogFooter>
           <DialogClose render={<Button type="button" variant="outline" />}>Cancelar</DialogClose>
@@ -290,4 +296,4 @@ export function UpsertTransactionDialog({
   );
 }
 
-export default UpsertTransactionDialog;
+export default TransactionForm;

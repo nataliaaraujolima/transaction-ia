@@ -1,9 +1,9 @@
 import type { Transaction } from "@prisma/client";
 import { cva, type VariantProps } from "class-variance-authority";
 import { CircleIcon } from "lucide-react";
-import { Badge } from "@/_components/ui/badge";
-import { cn } from "@/app/_lib/utils";
-import { TRANSACTION_TYPE_LABELS } from "@/app/transaction/_constants/transactions";
+import { cn } from "../../_lib/utils";
+import { Badge } from "../../shared/_components/ui/badge";
+import { TRANSACTION_TYPE_LABELS } from "../_constants/transactions";
 
 const transactionTypeBadgeVariants = cva("border-transparent font-bold hover:bg-muted", {
   variants: {

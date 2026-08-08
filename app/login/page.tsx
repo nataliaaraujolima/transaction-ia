@@ -2,7 +2,7 @@ import { SignInButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { Button } from "@/_components/ui/button";
+import { Button } from "../shared/_components/ui/button";
 
 const LoginPage = async () => {
   const { userId } = await auth();

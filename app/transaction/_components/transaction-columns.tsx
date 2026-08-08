@@ -3,11 +3,11 @@
 import type { Transaction } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import { PencilIcon, TrashIcon } from "lucide-react";
-import { Button } from "@/_components/ui/button";
+import { Button } from "../../shared/_components/ui/button";
 import {
   TRANSACTION_CATEGORY_LABELS,
   TRANSACTION_PAYMENT_METHOD_LABELS,
-} from "@/app/transaction/_constants/transactions";
+} from "../_constants/transactions";
 import { TransactionTypeBadge } from "./type-badge";
 
 export type SerializedTransaction = Omit<Transaction, "amount"> & {
