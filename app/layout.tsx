@@ -3,6 +3,7 @@ import { dark } from "@clerk/themes";
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { ptBR } from "@clerk/localizations";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
@@ -23,8 +24,12 @@ export default function RootLayout({
     <html lang="en" className={`${jetbrainsMono.variable} dark h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <ClerkProvider
+          localization={ptBR}
           appearance={{
             theme: dark,
+            elements: {
+              userButtonPopoverActionButton__manageAccount: "hidden!",
+            },
           }}
         >
           {children}
