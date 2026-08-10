@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ptBR } from "@clerk/localizations";
+import NavBar from "./shared/_components/common/nav-bar";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
@@ -32,6 +33,10 @@ export default function RootLayout({
             },
           }}
         >
+          <div className="space-y-4  overflow-hidden p-6">
+            <NavBar />
+          </div>
+
           {children}
         </ClerkProvider>
       </body>

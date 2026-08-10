@@ -1,4 +1,3 @@
-import { UserButton } from "@clerk/nextjs";
 import { db } from "../_lib/prisma";
 import AddTransactionButton from "./_components/add-transaction-button";
 import { TransactionTable } from "./_components/transaction-table";
@@ -11,12 +10,9 @@ export const TransactionPage = async () => {
   }));
 
   return (
-    <div className="space-y-6 overflow-hidden p-6">
-      <div className="flex w-full items-center justify-between">
-        <h1 className="text-2xl font-bold">Transações</h1>
-        <AddTransactionButton />
-        <UserButton showName />
-      </div>
+    <div className="space-y-4  overflow-hidden p-6">
+      <h1 className="text-2xl font-bold tracking-tight pt-4">Transações</h1>
+      <AddTransactionButton />
       <TransactionTable transactions={transactions} />
     </div>
   );
