@@ -1,6 +1,8 @@
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Button } from "./shared/_components/ui/button";
 
 export default async function Home() {
   const { userId } = await auth();
@@ -15,6 +17,11 @@ export default async function Home() {
         <p className="text-muted-foreground text-lg">
           Boilerplate e configurações inicializados com sucesso!
         </p>
+        <Button>
+          <Link href="/transaction">
+            <p>Ir para a página de transações</p>
+          </Link>
+        </Button>
       </main>
     </div>
   );
