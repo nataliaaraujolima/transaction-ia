@@ -6,6 +6,7 @@ import { Button } from "./shared/_components/ui/button";
 
 export default async function Home() {
   const { userId } = await auth();
+  console.log("userId", userId);
   if (!userId) {
     return redirect("/login");
   }

@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../shared/_components/ui/select";
-import { upsertTransaction } from "../_actions/add-transaction";
+import { upsertTransaction } from "../_actions/upsert-transaction";
 import {
   TRANSACTION_CATEGORY_OPTIONS,
   TRANSACTION_PAYMENT_METHOD_OPTIONS,

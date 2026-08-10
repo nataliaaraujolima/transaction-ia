@@ -2,12 +2,12 @@
 
 import type { Transaction } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
-import { TrashIcon } from "lucide-react";
-import { Button } from "../../shared/_components/ui/button";
+
 import {
   TRANSACTION_CATEGORY_LABELS,
   TRANSACTION_PAYMENT_METHOD_LABELS,
 } from "../_constants/transactions";
+import DeleteTransactionButton from "./delete-transaction-button";
 import EditTransactionButton from "./edit-transaction-button";
 import { TransactionTypeBadge } from "./type-badge";
 
@@ -61,9 +61,7 @@ export const transactionColumns: ColumnDef<SerializedTransaction>[] = [
     cell: ({ row: { original: transaction } }) => (
       <div className="flex items-center gap-1">
         <EditTransactionButton transaction={transaction} />
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
-          <TrashIcon />
-        </Button>
+        <DeleteTransactionButton transactionId={transaction.id} />
       </div>
     ),
   },
