@@ -2,12 +2,13 @@
 
 import type { Transaction } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
-import { PencilIcon, TrashIcon } from "lucide-react";
+import { TrashIcon } from "lucide-react";
 import { Button } from "../../shared/_components/ui/button";
 import {
   TRANSACTION_CATEGORY_LABELS,
   TRANSACTION_PAYMENT_METHOD_LABELS,
 } from "../_constants/transactions";
+import EditTransactionButton from "./edit-transaction-button";
 import { TransactionTypeBadge } from "./type-badge";
 
 export type SerializedTransaction = Omit<Transaction, "amount"> & {
@@ -57,11 +58,9 @@ export const transactionColumns: ColumnDef<SerializedTransaction>[] = [
   {
     id: "actions",
     header: "Ações",
-    cell: () => (
+    cell: ({ row: { original: transaction } }) => (
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
-          <PencilIcon />
-        </Button>
+        <EditTransactionButton transaction={transaction} />
         <Button variant="ghost" size="icon" className="text-muted-foreground">
           <TrashIcon />
         </Button>

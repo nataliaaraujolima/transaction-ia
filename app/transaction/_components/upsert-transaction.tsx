@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../shared/_components/ui/select";
-import { addTransaction } from "../_actions/add-transaction";
+import { upsertTransaction } from "../_actions/add-transaction";
 import {
   TRANSACTION_CATEGORY_OPTIONS,
   TRANSACTION_PAYMENT_METHOD_OPTIONS,
@@ -62,7 +62,7 @@ function formatDateInput(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-const UpsertTransaction = ({ defaultValues, onSuccess }: UpsertTransactionProps) => {
+const UpsertTransaction = ({ defaultValues, transactionId, onSuccess }: UpsertTransactionProps) => {
   const { control } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -78,7 +78,7 @@ const UpsertTransaction = ({ defaultValues, onSuccess }: UpsertTransactionProps)
 
   const onSubmit = async (data: FormSchema) => {
     try {
-      await addTransaction(data);
+      await upsertTransaction({ ...data, id: transactionId });
       onSuccess();
     } catch (error) {
       console.error(error);
@@ -139,6 +139,7 @@ const UpsertTransaction = ({ defaultValues, onSuccess }: UpsertTransactionProps)
               <Select
                 name={field.name}
                 value={field.value}
+                items={TRANSACTION_TYPE_OPTIONS}
                 onValueChange={(value) => {
                   if (value) field.onChange(value);
                 }}
@@ -168,6 +169,7 @@ const UpsertTransaction = ({ defaultValues, onSuccess }: UpsertTransactionProps)
               <Select
                 name={field.name}
                 value={field.value}
+                items={TRANSACTION_CATEGORY_OPTIONS}
                 onValueChange={(value) => {
                   if (value) field.onChange(value);
                 }}
@@ -197,6 +199,7 @@ const UpsertTransaction = ({ defaultValues, onSuccess }: UpsertTransactionProps)
               <Select
                 name={field.name}
                 value={field.value}
+                items={TRANSACTION_PAYMENT_METHOD_OPTIONS}
                 onValueChange={(value) => {
                   if (value) field.onChange(value);
                 }}
