@@ -11,20 +11,41 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-
 }
 
 model Transaction {
-  id            String                   @id @default(uuid())
-  name          String
-  type          TransactionType
-  amount        Decimal                  @db.Decimal(10, 2)
-  category      TransactionCategory
-  paymentMethod TransactionPaymentMethod
-  date          DateTime
-  createdAt     DateTime                 @default(now())
-  updatedAt     DateTime                 @updatedAt
-  userId        String                   
+  id                  String                   @id @default(uuid())
+  name                String
+  type                TransactionType
+  amount              Decimal                  @db.Decimal(10, 2)
+  category            TransactionCategory
+  paymentMethod       TransactionPaymentMethod
+  date                DateTime
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  userId              String
+  source              TransactionSource        @default(MANUAL)
+  pluggyTransactionId String?                  @unique
+  pluggyAccountId     String?
+  pluggyItemId        String?
+
+  @@index([userId, date])
+  @@index([userId, source])
+}
+
+model PluggyConnection {
+  id        String   @id @default(uuid())
+  userId    String
+  itemId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+enum TransactionSource {
+  MANUAL
+  BANK
 }
 
 enum TransactionType {
