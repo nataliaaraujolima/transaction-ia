@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownUpIcon } from "lucide-react";
+import { Repeat } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../shared/_components/ui/button";
 import TransactionDialogWrapper from "./transaction-dialog-wrapper";
@@ -16,7 +16,7 @@ export default function AddTransactionManualButton() {
     <>
       <Button onClick={handleOPenModal}>
         Adicionar transação
-        <ArrowDownUpIcon />
+        <Repeat />
       </Button>
       <TransactionDialogWrapper isOpen={isOpen} onOpenChange={setIsOpen} />
     </>

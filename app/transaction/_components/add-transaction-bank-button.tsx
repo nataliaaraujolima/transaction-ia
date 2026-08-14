@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownUpIcon } from "lucide-react";
+import { Cable } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PluggyConnect } from "react-pluggy-connect";
 import { cn } from "@/app/_lib/utils";
@@ -72,7 +72,7 @@ export default function AddTransactionBankButton() {
               className={cn(isDisabled && "text-muted-foreground bg-muted cursor-not-allowed")}
             >
               {isSyncing ? "Conectando a conta bancária..." : "Conectar Conta Bancária"}
-              <ArrowDownUpIcon />
+              <Cable />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="top">Feature em desenvolvimento, favor aguarde.</TooltipContent>
