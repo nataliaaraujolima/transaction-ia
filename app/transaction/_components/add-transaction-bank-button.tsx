@@ -3,7 +3,14 @@
 import { ArrowDownUpIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PluggyConnect } from "react-pluggy-connect";
+import { getFeatureFlag } from "@/app/shared/_components/_costants/feature-fleg";
 import { Button } from "../../shared/_components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../shared/_components/ui/tooltip";
 import { syncPluggyItem } from "../_actions/sync-pluggy-item";
 import type { SyncedPluggyAccount } from "../_types/pluggy-sync";
 
@@ -14,6 +21,7 @@ export default function AddTransactionBankButton() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   console.log("accounts", accounts);
+
   useEffect(() => {
     fetch("/api/create-pluggy-token", { method: "POST" })
       .then(async (res) => {
@@ -50,14 +58,28 @@ export default function AddTransactionBankButton() {
     await syncItem(nextItemId);
   };
 
+  const isDisabled = !connectToken || isSyncing || Boolean(getFeatureFlag(1)?.enabled);
+
   return (
     <>
-      <Button onClick={() => setIsOpen(true)} disabled={!connectToken || isSyncing}>
-        {isSyncing ? "Conectando a conta bancária..." : "Conectar Conta Bancária"}
-        <ArrowDownUpIcon />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger
+            delay={200}
+            render={<span className="inline-flex" />}
+          >
+            <Button onClick={() => setIsOpen(true)} disabled={isDisabled}>
+              {isSyncing ? "Conectando a conta bancária..." : "Conectar Conta Bancária"}
+              <ArrowDownUpIcon />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            Feature em desenvolvimento, favor aguarde.
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {isOpen && connectToken && (
+      {isOpen && connectToken && getFeatureFlag(1)?.enabled && (
         <PluggyConnect
           connectToken={connectToken}
           onSuccess={handleSuccess}
