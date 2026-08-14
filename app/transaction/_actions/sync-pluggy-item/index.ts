@@ -5,13 +5,19 @@ import { revalidatePath } from "next/cache";
 import { pluggyClient } from "../../../_lib/pluggy";
 import { db } from "../../../_lib/prisma";
 import { mapPluggyTransaction } from "../../_lib/map-pluggy-transaction";
+import type {
+  SyncedPluggyAccount,
+  SyncPluggyItemResult,
+} from "../../_types/pluggy-sync";
 import { syncPluggyItemSchema } from "./schema";
 
 interface SyncPluggyItemParams {
   itemId: string;
 }
 
-export const syncPluggyItem = async (params: SyncPluggyItemParams) => {
+export const syncPluggyItem = async (
+  params: SyncPluggyItemParams
+): Promise<SyncPluggyItemResult> => {
   syncPluggyItemSchema.parse(params);
   const { userId } = await auth();
 
@@ -97,16 +103,18 @@ export const syncPluggyItem = async (params: SyncPluggyItemParams) => {
   revalidatePath("/transaction");
   revalidatePath("/pluggy");
 
+  const syncedAccounts: SyncedPluggyAccount[] = accounts.map((account) => ({
+    id: account.id,
+    name: account.name,
+    type: account.type,
+    subtype: account.subtype,
+    balance: account.balance,
+    currencyCode: account.currencyCode,
+  }));
+
   return {
-    accountsCount: accounts.length,
+    accountsCount: syncedAccounts.length,
     transactionsSynced: mappedTransactions.length,
-    accounts: accounts.map((account) => ({
-      id: account.id,
-      name: account.name,
-      type: account.type,
-      subtype: account.subtype,
-      balance: account.balance,
-      currencyCode: account.currencyCode,
-    })),
+    accounts: syncedAccounts,
   };
 };

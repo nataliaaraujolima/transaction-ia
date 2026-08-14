@@ -14,7 +14,7 @@ export default function AddTransactionManualButton() {
 
   return (
     <>
-      <Button className="rounded-full font-bold" onClick={handleOPenModal}>
+      <Button onClick={handleOPenModal}>
         Adicionar transação
         <ArrowDownUpIcon />
       </Button>
