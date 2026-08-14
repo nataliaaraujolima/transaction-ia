@@ -1,10 +1,11 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import type {
-  TransactionCategory,
-  TransactionPaymentMethod,
-  TransactionType,
+import {
+  type TransactionCategory,
+  type TransactionPaymentMethod,
+  TransactionSource,
+  type TransactionType,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { db } from "../../../_lib/prisma";
@@ -29,18 +30,34 @@ export const upsertTransaction = async (params: UpsertTransactionParams) => {
   }
 
   const { id, ...data } = params;
-  const transactionId = id ?? crypto.randomUUID();
 
-  await db.transaction.upsert({
-    where: {
-      id: transactionId,
-    },
-    update: data,
-    create: {
-      ...data,
-      id: transactionId,
-      userId,
-    },
-  });
+  if (id) {
+    const existing = await db.transaction.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      throw new Error("Transaction not found");
+    }
+
+    if (existing.source === TransactionSource.BANK) {
+      throw new Error("Bank transactions cannot be edited");
+    }
+
+    await db.transaction.update({
+      where: { id },
+      data,
+    });
+  } else {
+    await db.transaction.create({
+      data: {
+        ...data,
+        id: crypto.randomUUID(),
+        userId,
+        source: TransactionSource.MANUAL,
+      },
+    });
+  }
+
   revalidatePath("/transaction");
 };

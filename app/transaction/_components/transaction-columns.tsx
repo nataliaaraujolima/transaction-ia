@@ -3,9 +3,11 @@
 import type { Transaction } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 
+import { Badge } from "../../shared/_components/ui/badge";
 import {
   TRANSACTION_CATEGORY_LABELS,
   TRANSACTION_PAYMENT_METHOD_LABELS,
+  TRANSACTION_SOURCE_LABELS,
 } from "../_constants/transactions";
 import DeleteTransactionButton from "./delete-transaction-button";
 import EditTransactionButton from "./edit-transaction-button";
@@ -56,13 +58,23 @@ export const transactionColumns: ColumnDef<SerializedTransaction>[] = [
       }).format(transaction.amount),
   },
   {
+    accessorKey: "source",
+    header: "Origem",
+    cell: ({ row: { original: transaction } }) => (
+      <Badge variant={transaction.source === "MANUAL" ? "secondary" : "outline"}>
+        {TRANSACTION_SOURCE_LABELS[transaction.source]}
+      </Badge>
+    ),
+  },
+  {
     id: "actions",
     header: "Ações",
-    cell: ({ row: { original: transaction } }) => (
-      <div className="flex items-center gap-1">
-        <EditTransactionButton transaction={transaction} />
-        <DeleteTransactionButton transactionId={transaction.id} />
-      </div>
-    ),
+    cell: ({ row: { original: transaction } }) =>
+      transaction.source === "MANUAL" ? (
+        <div className="flex items-center gap-1">
+          <EditTransactionButton transaction={transaction} />
+          <DeleteTransactionButton transactionId={transaction.id} />
+        </div>
+      ) : null,
   },
 ];

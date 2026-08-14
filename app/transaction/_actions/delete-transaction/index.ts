@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { TransactionSource } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { db } from "../../../_lib/prisma";
 import { deleteTransactionSchema } from "./schema";
@@ -17,10 +18,17 @@ export const deleteTransaction = async (params: DeleteTransactionParams) => {
     throw new Error("Unauthorized");
   }
 
-  await db.transaction.delete({
+  const result = await db.transaction.deleteMany({
     where: {
       id: params.id,
+      userId,
+      source: TransactionSource.MANUAL,
     },
   });
+
+  if (result.count === 0) {
+    throw new Error("Transaction not found or cannot be deleted");
+  }
+
   revalidatePath("/transaction");
 };

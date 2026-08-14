@@ -2,6 +2,7 @@ import {
   type Transaction,
   TransactionCategory,
   TransactionPaymentMethod,
+  TransactionSource,
   TransactionType,
 } from "@prisma/client";
 
@@ -31,6 +32,13 @@ export const TRANSACTION_TYPE_LABELS: Record<Transaction["type"], string> = {
   DEPOSIT: "Depósito",
   EXPENSE: "Gasto",
   INVESTMENT: "Investimento",
+};
+
+export { TransactionSource };
+
+export const TRANSACTION_SOURCE_LABELS: Record<TransactionSource, string> = {
+  MANUAL: "Manual",
+  BANK: "Banco",
 };
 
 export const TRANSACTION_TYPE_OPTIONS = Object.values(TransactionType).map((value) => ({

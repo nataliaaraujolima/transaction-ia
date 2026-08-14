@@ -1,9 +1,21 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { db } from "../_lib/prisma";
 import AddTransactionButton from "./_components/add-transaction-button";
 import { TransactionTable } from "./_components/transaction-table";
 
 export const TransactionPage = async () => {
-  const transactionsData = await db.transaction.findMany({});
+  const { userId } = await auth();
+
+  if (!userId) {
+    redirect("/login");
+  }
+
+  const transactionsData = await db.transaction.findMany({
+    where: { userId },
+    orderBy: { date: "desc" },
+  });
+
   const transactions = transactionsData.map((transaction) => ({
     ...transaction,
     amount: Number(transaction.amount),
