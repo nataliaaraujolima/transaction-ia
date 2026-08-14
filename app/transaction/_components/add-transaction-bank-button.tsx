@@ -3,6 +3,7 @@
 import { ArrowDownUpIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PluggyConnect } from "react-pluggy-connect";
+import { cn } from "@/app/_lib/utils";
 import { getFeatureFlag } from "@/app/shared/_components/_costants/feature-fleg";
 import { Button } from "../../shared/_components/ui/button";
 import {
@@ -64,18 +65,17 @@ export default function AddTransactionBankButton() {
     <>
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger
-            delay={200}
-            render={<span className="inline-flex" />}
-          >
-            <Button onClick={() => setIsOpen(true)} disabled={isDisabled}>
+          <TooltipTrigger delay={200} render={<span className="inline-flex" />}>
+            <Button
+              onClick={() => setIsOpen(true)}
+              disabled={isDisabled}
+              className={cn(isDisabled && "text-muted-foreground bg-muted cursor-not-allowed")}
+            >
               {isSyncing ? "Conectando a conta bancária..." : "Conectar Conta Bancária"}
               <ArrowDownUpIcon />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="top">
-            Feature em desenvolvimento, favor aguarde.
-          </TooltipContent>
+          <TooltipContent side="top">Feature em desenvolvimento, favor aguarde.</TooltipContent>
         </Tooltip>
       </TooltipProvider>
       {error && <p className="text-sm text-red-500">{error}</p>}
