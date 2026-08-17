@@ -39,6 +39,15 @@ const NavBar = () => {
         >
           Transações
         </Link>
+        <Link
+          href="subscription"
+          className={cn(
+            "hover:underline hover:text-primary",
+            pathname === "/subscription" ? "text-primary" : "text-gray-500"
+          )}
+        >
+          Assinaturas
+        </Link>
       </div>
       <div>
         <UserButton showName />
