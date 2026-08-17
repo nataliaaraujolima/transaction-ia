@@ -1,13 +1,16 @@
 "use client";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { cn } from "../../../_lib/utils";
 
 const NavBar = () => {
   const pathname = usePathname();
-
+  const { userId } = useAuth();
+  if (!userId) {
+    return redirect("/login");
+  }
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center gap-4">

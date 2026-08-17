@@ -4,7 +4,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Button } from "../shared/_components/ui/button";
 
-const LoginPage = async () => {
+const Login = async () => {
   const { userId } = await auth();
 
   if (userId) {
@@ -33,11 +33,11 @@ const LoginPage = async () => {
           </p>
         </div>
         <SignInButton>
-          <Button>Conhecer a plataforma</Button>
+          <Button>Faça login para continuar</Button>
         </SignInButton>
       </main>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;

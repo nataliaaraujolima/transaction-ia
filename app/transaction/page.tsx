@@ -5,11 +5,12 @@ import NavBar from "../shared/_components/common/nav-bar";
 import AddTransactionBankButton from "./_components/add-transaction-bank-button";
 import AddTransactionManualButton from "./_components/add-transaction-manual-button";
 import { TransactionTable } from "./_components/transaction-table";
-export const TransactionPage = async () => {
+
+export const Transaction = async () => {
   const { userId } = await auth();
 
   if (!userId) {
-    redirect("/login");
+    return redirect("/login");
   }
 
   const transactionsData = await db.transaction.findMany({
@@ -38,4 +39,4 @@ export const TransactionPage = async () => {
   );
 };
 
-export default TransactionPage;
+export default Transaction;
