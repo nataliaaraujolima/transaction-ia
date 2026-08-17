@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ptBR } from "@clerk/localizations";
-import NavBar from "./shared/_components/common/nav-bar";
+import type { ReactNode } from "react";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en" className={`${jetbrainsMono.variable} dark h-full antialiased`}>
@@ -33,10 +33,6 @@ export default function RootLayout({
             },
           }}
         >
-          <div className="space-y-4  overflow-hidden p-6">
-            <NavBar />
-          </div>
-
           {children}
         </ClerkProvider>
       </body>

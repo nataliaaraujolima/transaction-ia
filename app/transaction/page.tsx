@@ -1,10 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "../_lib/prisma";
+import NavBar from "../shared/_components/common/nav-bar";
 import AddTransactionBankButton from "./_components/add-transaction-bank-button";
 import AddTransactionManualButton from "./_components/add-transaction-manual-button";
 import { TransactionTable } from "./_components/transaction-table";
-
 export const TransactionPage = async () => {
   const { userId } = await auth();
 
@@ -24,7 +24,11 @@ export const TransactionPage = async () => {
 
   return (
     <div className="space-y-4  overflow-hidden p-6">
+      <div className="flex justify-between items-center">
+        <NavBar />
+      </div>
       <h1 className="text-2xl font-bold tracking-tight pt-4">Transações</h1>
+
       <div className="flex gap-4">
         <AddTransactionManualButton />
         <AddTransactionBankButton />
