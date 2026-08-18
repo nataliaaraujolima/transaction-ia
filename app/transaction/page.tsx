@@ -24,13 +24,10 @@ export const Transaction = async () => {
   }));
 
   return (
-    <div className="space-y-4  overflow-hidden p-6">
-      <div className="flex justify-between items-center">
-        <NavBar />
-      </div>
-      <h1 className="text-2xl font-bold tracking-tight pt-4">Transações</h1>
-
-      <div className="flex gap-4">
+    <div className="space-y-4 overflow-hidden p-6">
+      <NavBar />
+      <h1 className="pt-4 text-2xl font-bold tracking-tight">Transações</h1>
+      <div className="flex shrink-0 gap-4">
         <AddTransactionManualButton />
         <AddTransactionBankButton />
       </div>
