@@ -4,19 +4,12 @@ import { redirect } from "next/navigation";
 import { db } from "../_lib/prisma";
 import NavBar from "../shared/_components/common/nav-bar";
 import { Button } from "../shared/_components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../shared/_components/ui/select";
+
 import { CardTransactions } from "./_components/card-transactions";
 import { ChartCategory } from "./_components/chaste-category";
 import { SelectDate } from "./_components/select-date";
 import { TransactionSummary } from "./_components/Transaction-summary";
 import { TransactionChart } from "./_components/transaction-chart";
-import { MONTH_OPTIONS } from "./_constants/chart-config";
 import { getDashboard } from "./_data/get-dashboard";
 
 interface DashboardProps {
@@ -25,14 +18,27 @@ interface DashboardProps {
 
 const Dashboard = async ({ searchParams }: DashboardProps) => {
   const { userId } = await auth();
-
   if (!userId) {
     return redirect("/login");
   }
+  const { month } = await searchParams;
+  const selectedMonth = month ?? String(new Date().getMonth() + 1);
+
+  const currentYear = new Date().getFullYear();
+  const monthIndex = Number(selectedMonth) - 1;
+
+  const where = {
+    date: {
+      gte: new Date(currentYear, monthIndex, 1),
+      lt: new Date(currentYear, monthIndex + 1, 1),
+    },
+  };
+
   const depositsTotal = Number(
     (
       await db.transaction.aggregate({
         where: {
+          ...where,
           userId,
           type: TransactionType.DEPOSIT,
           source: TransactionSource.MANUAL,
@@ -46,6 +52,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
     (
       await db.transaction.aggregate({
         where: {
+          ...where,
           userId,
           type: TransactionType.INVESTMENT,
           source: TransactionSource.MANUAL,
@@ -59,6 +66,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
     (
       await db.transaction.aggregate({
         where: {
+          ...where,
           userId,
           type: TransactionType.EXPENSE,
           source: TransactionSource.MANUAL,
@@ -70,11 +78,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
 
   const balance = depositsTotal - investmentsTotal - expensesTotal;
 
-  const { month: monthParam } = await searchParams;
-  const currentMonth = String(new Date().getMonth() + 1);
-  const month = monthParam && /^(?:[1-9]|1[0-2])$/.test(monthParam) ? monthParam : currentMonth;
-
-  const dashboard = await getDashboard(userId, month);
+  const dashboard = await getDashboard(userId, selectedMonth);
 
   return (
     <div className="space-y-4 overflow-hidden p-6">
@@ -83,7 +87,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
         <h1 className="pt-4 text-2xl font-bold tracking-tight">Dashboard</h1>
         <div className="flex items-center gap-2">
           <Button>Relatório IA</Button>
-          <SelectDate />
+          <SelectDate month={selectedMonth} />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr,1fr]">
