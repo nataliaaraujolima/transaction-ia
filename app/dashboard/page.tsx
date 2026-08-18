@@ -1,10 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { TransactionSource, TransactionType } from "@prisma/client";
+import { isMatch } from "date-fns";
 import { redirect } from "next/navigation";
 import { db } from "../_lib/prisma";
 import NavBar from "../shared/_components/common/nav-bar";
 import { Button } from "../shared/_components/ui/button";
-
 import { CardTransactions } from "./_components/card-transactions";
 import { ChartCategory } from "./_components/chaste-category";
 import { SelectDate } from "./_components/select-date";
@@ -33,6 +33,11 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
       lt: new Date(currentYear, monthIndex + 1, 1),
     },
   };
+
+  const monthIsInvalid =  !selectedMonth || !isMatch( selectedMonth, "MM");
+  if (monthIsInvalid) {
+    return redirect("/dashboard?month=1");
+  }
 
   const depositsTotal = Number(
     (
