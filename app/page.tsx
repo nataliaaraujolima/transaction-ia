@@ -18,7 +18,7 @@ export default async function Home() {
         <p className="text-muted-foreground text-lg">
           Boilerplate e configurações inicializados com sucesso!
         </p>
-        <Button asChild>
+        <Button>
           <Link href="/transaction"> Ir para a página de transações</Link>
         </Button>
       </main>

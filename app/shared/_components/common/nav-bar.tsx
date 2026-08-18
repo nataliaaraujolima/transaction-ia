@@ -1,16 +1,12 @@
 "use client";
-import { UserButton, useAuth } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { cn } from "../../../_lib/utils";
 
 const NavBar = () => {
   const pathname = usePathname();
-  const { userId } = useAuth();
-  if (!userId) {
-    return redirect("/login");
-  }
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center gap-4">
@@ -25,16 +21,16 @@ const NavBar = () => {
           <h1 className="text-2xl font-bold tracking-tight text-purple-500">Transaction.IA</h1>
         </div>
         <Link
-          href="/"
+          href="/dashboard"
           className={cn(
             "hover:underline hover:text-primary",
-            pathname === "/" ? "text-primary" : "text-gray-500"
+            pathname === "/dashboard" ? "text-primary" : "text-gray-500"
           )}
         >
           Dashboard
         </Link>
         <Link
-          href="transaction"
+          href="/transaction"
           className={cn(
             "hover:underline hover:text-primary",
             pathname === "/transaction" ? "text-primary" : "text-gray-500"
@@ -43,7 +39,7 @@ const NavBar = () => {
           Transações
         </Link>
         <Link
-          href="subscription"
+          href="/subscription"
           className={cn(
             "hover:underline hover:text-primary",
             pathname === "/subscription" ? "text-primary" : "text-gray-500"

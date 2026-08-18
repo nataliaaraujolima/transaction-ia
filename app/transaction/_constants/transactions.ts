@@ -18,6 +18,16 @@ export const TRANSACTION_CATEGORY_LABELS: Record<Transaction["category"], string
   UTILITY: "Utilidades",
 };
 
+export const TRANSACTION_PAYMENT_METHOD_ICONS: Record<Transaction["paymentMethod"], string> = {
+  CASH: "svg/money.svg",
+  CREDIT_CARD: "svg/credit-card.svg",
+  DEBIT_CARD: "svg/debit-card.svg",
+  BANK_TRANSFER: "svg/bank-transfer.svg",
+  BANK_SLIP: "svg/bank-slip.svg",
+  PIX: "svg/pix.svg",
+  OTHER: "svg/other.svg",
+};
+
 export const TRANSACTION_PAYMENT_METHOD_LABELS: Record<Transaction["paymentMethod"], string> = {
   CASH: "Dinheiro",
   CREDIT_CARD: "Cartão de Crédito",

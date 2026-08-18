@@ -1,8 +1,8 @@
-import { useAuth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-export default function Subscription() {
-  const { userId } = useAuth();
+export default async function Subscription() {
+  const { userId } = await auth();
 
   if (!userId) {
     return redirect("/login");
