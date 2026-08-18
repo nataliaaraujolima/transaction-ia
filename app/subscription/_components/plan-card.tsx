@@ -58,9 +58,10 @@ const PLAN_CONFIG = {
 interface PlanCardProps extends VariantProps<typeof planCardVariants> {
   variant: PlanVariant;
   className?: string;
+  onClick?: () => void | Promise<void>;
 }
 
-export function PlanCard({ variant, className }: PlanCardProps) {
+export function PlanCard({ variant, className, onClick }: PlanCardProps) {
   const plan = PLAN_CONFIG[variant];
 
   return (
@@ -91,7 +92,11 @@ export function PlanCard({ variant, className }: PlanCardProps) {
           </div>
         ))}
 
-        <Button variant={plan.ctaButtonVariant} className="w-full rounded-full font-bold">
+        <Button
+          variant={plan.ctaButtonVariant}
+          className="w-full rounded-full font-bold"
+          onClick={onClick}
+        >
           {plan.cta}
         </Button>
       </CardContent>
