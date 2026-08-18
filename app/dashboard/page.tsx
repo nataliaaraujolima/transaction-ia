@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "../_lib/prisma";
 import NavBar from "../shared/_components/common/nav-bar";
 import { Button } from "../shared/_components/ui/button";
+import AddTransactionManualButton from "../transaction/_components/add-transaction-manual-button";
 import { CardTransactions } from "./_components/card-transactions";
 import { ChartCategory } from "./_components/chaste-category";
 import { SelectDate } from "./_components/select-date";
@@ -34,7 +35,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
     },
   };
 
-  const monthIsInvalid =  !selectedMonth || !isMatch( selectedMonth, "MM");
+  const monthIsInvalid = !selectedMonth || !isMatch(selectedMonth, "MM");
   if (monthIsInvalid) {
     return redirect("/dashboard?month=1");
   }
@@ -93,6 +94,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
         <div className="flex items-center gap-2">
           <Button>Relatório IA</Button>
           <SelectDate month={selectedMonth} />
+          <AddTransactionManualButton />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr,1fr]">
