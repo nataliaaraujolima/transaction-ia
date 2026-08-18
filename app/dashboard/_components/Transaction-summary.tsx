@@ -1,5 +1,6 @@
 import { TransactionType } from "@prisma/client";
 import { PiggyBankIcon, TrendingDownIcon, TrendingUpIcon, WalletIcon } from "lucide-react";
+import AddTransactionManualButton from "@/app/transaction/_components/add-transaction-manual-button";
 import { SummaryCard } from "./summary-card";
 
 interface TransactionSummaryProps {
@@ -17,6 +18,7 @@ export function TransactionSummary({
 }: TransactionSummaryProps) {
   return (
     <div className="space-y-6">
+      <AddTransactionManualButton />
       <SummaryCard
         size="large"
         title="Saldo"
