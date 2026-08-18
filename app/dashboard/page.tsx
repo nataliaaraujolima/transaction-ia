@@ -13,8 +13,10 @@ import {
 } from "../shared/_components/ui/select";
 import { CardTransactions } from "./_components/card-transactions";
 import { ChartCategory } from "./_components/chaste-category";
+import { SelectDate } from "./_components/select-date";
 import { TransactionSummary } from "./_components/Transaction-summary";
 import { TransactionChart } from "./_components/transaction-chart";
+import { MONTH_OPTIONS } from "./_constants/chart-config";
 import { getDashboard } from "./_data/get-dashboard";
 
 interface DashboardProps {
@@ -81,19 +83,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
         <h1 className="pt-4 text-2xl font-bold tracking-tight">Dashboard</h1>
         <div className="flex items-center gap-2">
           <Button>Relatório IA</Button>
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione um mês" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">Janeiro</SelectItem>
-              <SelectItem value="2">Fevereiro</SelectItem>
-              <SelectItem value="3">Março</SelectItem>
-              <SelectItem value="4">Abril</SelectItem>
-              <SelectItem value="5">Maio</SelectItem>
-              <SelectItem value="6">Junho</SelectItem>
-            </SelectContent>
-          </Select>
+          <SelectDate />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr,1fr]">
