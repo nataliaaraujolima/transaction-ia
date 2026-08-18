@@ -3,6 +3,14 @@ import { TransactionSource, TransactionType } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { db } from "../_lib/prisma";
 import NavBar from "../shared/_components/common/nav-bar";
+import { Button } from "../shared/_components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../shared/_components/ui/select";
 import { CardTransactions } from "./_components/card-transactions";
 import { ChartCategory } from "./_components/chaste-category";
 import { TransactionSummary } from "./_components/Transaction-summary";
@@ -69,9 +77,25 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
   return (
     <div className="space-y-4 overflow-hidden p-6">
       <NavBar />
-
-      <h1 className="pt-4 text-2xl font-bold tracking-tight">Dashboard</h1>
-
+      <div className="flex items-center justify-between">
+        <h1 className="pt-4 text-2xl font-bold tracking-tight">Dashboard</h1>
+        <div className="flex items-center gap-2">
+          <Button>Relatório IA</Button>
+          <Select>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione um mês" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">Janeiro</SelectItem>
+              <SelectItem value="2">Fevereiro</SelectItem>
+              <SelectItem value="3">Março</SelectItem>
+              <SelectItem value="4">Abril</SelectItem>
+              <SelectItem value="5">Maio</SelectItem>
+              <SelectItem value="6">Junho</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr,1fr]">
         <div className="flex flex-col gap-6">
           <TransactionSummary

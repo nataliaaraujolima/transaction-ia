@@ -33,7 +33,7 @@ function formatTransactionDate(date: Date) {
 
 export function CardTransactions({ lastTransactions }: CardTransactionsProps) {
   return (
-    <ScrollArea className="rounded-xl ring-1 ring-foreground/10">
+    <ScrollArea className="rounded-xl ring-1 ring-foreground/10 bg-[var(--background-black)] p-4">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-bold lg:text-2xl">Últimas Transações</CardTitle>
 

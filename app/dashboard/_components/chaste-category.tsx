@@ -10,7 +10,7 @@ interface ChartCategoryProps {
 
 export function ChartCategory({ expensesPerCategory }: ChartCategoryProps) {
   return (
-    <ScrollArea className="col-span-2 h-full rounded-xl ring-1 ring-foreground/10 pb-6">
+    <ScrollArea className="col-span-2 h-full rounded-xl ring-1 ring-foreground/10 pb-6 bg-[var(--background-black)] p-4">
       <CardHeader>
         <CardTitle className="font-bold">Gastos por Categoria</CardTitle>
       </CardHeader>

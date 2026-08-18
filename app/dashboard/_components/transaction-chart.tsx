@@ -45,7 +45,7 @@ export function TransactionChart({
   ];
 
   return (
-    <Card className="flex flex-col p-4">
+    <Card className="flex flex-col p-4 text-primary-foreground bg-[var(--background-black)]">
       <CardContent className="pb-0">
         <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[200px]">
           <PieChart>
