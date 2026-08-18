@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ReactNode } from "react";
+import { cn } from "@/app/_lib/utils";
 import { formatCurrency } from "@/app/shared/utils";
 import { Card, CardContent, CardHeader } from "../../shared/_components/ui/card";
 
