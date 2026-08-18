@@ -1,8 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
-import { TransactionSource, TransactionType } from "@prisma/client";
 import { isMatch } from "date-fns";
 import { redirect } from "next/navigation";
-import { db } from "../_lib/prisma";
 import NavBar from "../shared/_components/common/nav-bar";
 import { Button } from "../shared/_components/ui/button";
 import AddTransactionManualButton from "../transaction/_components/add-transaction-manual-button";
@@ -11,7 +9,7 @@ import { ChartCategory } from "./_components/chaste-category";
 import { SelectDate } from "./_components/select-date";
 import { TransactionSummary } from "./_components/Transaction-summary";
 import { TransactionChart } from "./_components/transaction-chart";
-import { getDashboard } from "./_data/get-dashboard";
+import { getDashboard } from "./_db/get-dashboard";
 
 interface DashboardProps {
   searchParams: Promise<{ month?: string }>;
@@ -25,6 +23,11 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
   const { month } = await searchParams;
   const selectedMonth = month ?? String(new Date().getMonth() + 1);
 
+  const monthIsInvalid = !selectedMonth || !isMatch(selectedMonth, "MM");
+  if (monthIsInvalid) {
+    return redirect("/dashboard?month=1");
+  }
+
   const currentYear = new Date().getFullYear();
   const monthIndex = Number(selectedMonth) - 1;
 
@@ -35,56 +38,8 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
     },
   };
 
-  const monthIsInvalid = !selectedMonth || !isMatch(selectedMonth, "MM");
-  if (monthIsInvalid) {
-    return redirect("/dashboard?month=1");
-  }
-
-  const depositsTotal = Number(
-    (
-      await db.transaction.aggregate({
-        where: {
-          ...where,
-          userId,
-          type: TransactionType.DEPOSIT,
-          source: TransactionSource.MANUAL,
-        },
-        _sum: { amount: true },
-      })
-    )._sum.amount ?? 0
-  );
-
-  const investmentsTotal = Number(
-    (
-      await db.transaction.aggregate({
-        where: {
-          ...where,
-          userId,
-          type: TransactionType.INVESTMENT,
-          source: TransactionSource.MANUAL,
-        },
-        _sum: { amount: true },
-      })
-    )._sum.amount ?? 0
-  );
-
-  const expensesTotal = Number(
-    (
-      await db.transaction.aggregate({
-        where: {
-          ...where,
-          userId,
-          type: TransactionType.EXPENSE,
-          source: TransactionSource.MANUAL,
-        },
-        _sum: { amount: true },
-      })
-    )._sum.amount ?? 0
-  );
-
-  const balance = depositsTotal - investmentsTotal - expensesTotal;
-
-  const dashboard = await getDashboard(userId, selectedMonth);
+  const dashboardData = await getDashboard({ userId, where });
+  const { balance, depositsTotal, investmentsTotal, expensesTotal } = dashboardData;
 
   return (
     <div className="space-y-4 overflow-hidden p-6">
@@ -108,17 +63,17 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <TransactionChart
-              typesPercentage={dashboard.typesPercentage}
+              typesPercentage={dashboardData.typesPercentage}
               depositsTotal={depositsTotal}
               investmentsTotal={investmentsTotal}
               expensesTotal={expensesTotal}
             />
 
-            <ChartCategory expensesPerCategory={dashboard.totalExpensePerCategory} />
+            <ChartCategory expensesPerCategory={dashboardData.totalExpensePerCategory} />
           </div>
         </div>
 
-        <CardTransactions lastTransactions={dashboard.lastTransactions} />
+        <CardTransactions lastTransactions={dashboardData.lastTransactions} />
       </div>
     </div>
   );
