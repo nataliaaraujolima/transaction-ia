@@ -1,8 +1,10 @@
 import { CardContent, CardHeader, CardTitle } from "../../shared/_components/ui/card";
 import { Progress } from "../../shared/_components/ui/progress";
-import { ScrollArea } from "../../shared/_components/ui/scroll-area";
 import { TRANSACTION_CATEGORY_LABELS } from "../../transaction/_constants/transactions";
 import type { TotalExpensePerCategory } from "../_types/dashboard";
+
+const overlayScroll =
+  "max-h-[320px] overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgb(255_255_255_/_0.35)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30";
 
 interface ChartCategoryProps {
   expensesPerCategory: TotalExpensePerCategory[];
@@ -10,12 +12,12 @@ interface ChartCategoryProps {
 
 export function ChartCategory({ expensesPerCategory }: ChartCategoryProps) {
   return (
-    <ScrollArea className="col-span-2 h-full rounded-xl ring-1 ring-foreground/10 pb-6 bg-[var(--background-black)] p-4">
-      <CardHeader>
+    <div className="col-span-1 flex flex-col rounded-xl bg-(--background-black) p-4 ring-1 ring-foreground/10 lg:col-span-2">
+      <CardHeader className="shrink-0">
         <CardTitle className="font-bold">Gastos por Categoria</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className={`space-y-6 pt-4 ${overlayScroll}`}>
         {expensesPerCategory.map((category) => (
           <div key={category.category} className="space-y-2">
             <div className="flex w-full justify-between">
@@ -31,6 +33,6 @@ export function ChartCategory({ expensesPerCategory }: ChartCategoryProps) {
           <p className="text-sm text-muted-foreground">Nenhum resultado encontrado...</p>
         )}
       </CardContent>
-    </ScrollArea>
+    </div>
   );
 }

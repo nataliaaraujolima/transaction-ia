@@ -45,16 +45,16 @@ export function TransactionChart({
   ];
 
   return (
-    <Card className="flex flex-col p-4 text-primary-foreground bg-[var(--background-black)]">
-      <CardContent className="pb-0">
-        <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[200px]">
+    <Card className="flex flex-col bg-(--background-black) p-4 text-primary-foreground">
+      <CardContent className="flex flex-col pb-0">
+        <ChartContainer config={chartConfig} className="mx-auto h-[200px] w-[200px]">
           <PieChart>
             <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
             <Pie nameKey="type" data={chartData} dataKey="amount" innerRadius={50} />
           </PieChart>
         </ChartContainer>
 
-        <div className="space-y-2">
+        <div className="mt-4 space-y-2">
           <PercentageItem
             title="Receita"
             value={typesPercentage[TransactionType.DEPOSIT]}

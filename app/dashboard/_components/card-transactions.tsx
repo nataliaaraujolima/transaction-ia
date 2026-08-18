@@ -4,9 +4,11 @@ import Link from "next/link";
 import { formatCurrency } from "@/app/shared/utils";
 import { Button } from "../../shared/_components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "../../shared/_components/ui/card";
-import { ScrollArea } from "../../shared/_components/ui/scroll-area";
 import { TRANSACTION_PAYMENT_METHOD_ICONS } from "../../transaction/_constants/transactions";
 import type { SerializedTransaction } from "../_types/dashboard";
+
+const overlayScroll =
+  "max-h-[36rem] overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgb(255_255_255_/_0.35)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30";
 
 interface CardTransactionsProps {
   lastTransactions: SerializedTransaction[];
@@ -33,8 +35,8 @@ function formatTransactionDate(date: Date) {
 
 export function CardTransactions({ lastTransactions }: CardTransactionsProps) {
   return (
-    <ScrollArea className="rounded-xl ring-1 ring-foreground/10 bg-[var(--background-black)] p-4">
-      <CardHeader className="flex flex-row items-center justify-between">
+    <div className="flex flex-col rounded-xl bg-(--background-black) p-4 ring-1 ring-foreground/10">
+      <CardHeader className="flex shrink-0 flex-row items-center justify-between">
         <CardTitle className="text-lg font-bold lg:text-2xl">Últimas Transações</CardTitle>
 
         <Link href="/transaction" className="hidden lg:block">
@@ -44,7 +46,7 @@ export function CardTransactions({ lastTransactions }: CardTransactionsProps) {
         </Link>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className={`space-y-6 pt-4 ${overlayScroll}`}>
         {lastTransactions.map((transaction) => (
           <div key={transaction.id} className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -75,6 +77,6 @@ export function CardTransactions({ lastTransactions }: CardTransactionsProps) {
           <p className="text-sm text-muted-foreground">Nenhum resultado encontrado...</p>
         )}
       </CardContent>
-    </ScrollArea>
+    </div>
   );
 }

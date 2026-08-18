@@ -42,7 +42,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
   const { balance, depositsTotal, investmentsTotal, expensesTotal } = dashboardData;
 
   return (
-    <div className="space-y-4 overflow-hidden p-6">
+    <div className="space-y-4 p-6">
       <NavBar />
       <div className="flex items-center justify-between">
         <h1 className="pt-4 text-2xl font-bold tracking-tight">Dashboard</h1>
@@ -61,7 +61,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
             expensesTotal={expensesTotal}
           />
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <TransactionChart
               typesPercentage={dashboardData.typesPercentage}
               depositsTotal={depositsTotal}
