@@ -18,7 +18,7 @@ interface DashboardProps {
 const Dashboard = async ({ searchParams }: DashboardProps) => {
   const { userId } = await auth();
   if (!userId) {
-    return redirect("/login");
+    return redirect("/");
   }
   const { month } = await searchParams;
   const selectedMonth = month ?? String(new Date().getMonth() + 1);

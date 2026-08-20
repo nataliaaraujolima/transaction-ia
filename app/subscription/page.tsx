@@ -8,7 +8,7 @@ export default async function Subscription() {
   const { userId } = await auth();
 
   if (!userId) {
-    return redirect("/login");
+    return redirect("/");
   }
 
   return (

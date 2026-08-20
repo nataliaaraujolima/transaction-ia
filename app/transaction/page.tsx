@@ -10,7 +10,7 @@ export const Transaction = async () => {
   const { userId } = await auth();
 
   if (!userId) {
-    return redirect("/login");
+    return redirect("/");
   }
 
   const transactionsData = await db.transaction.findMany({
