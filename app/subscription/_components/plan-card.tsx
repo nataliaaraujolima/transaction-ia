@@ -1,3 +1,5 @@
+"use client";
+import { useUser } from "@clerk/nextjs";
 import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, XIcon } from "lucide-react";
 import { cn } from "@/app/_lib/utils";
@@ -62,8 +64,11 @@ interface PlanCardProps extends VariantProps<typeof planCardVariants> {
 }
 
 export function PlanCard({ variant, className, onClick }: PlanCardProps) {
+  const { user } = useUser();
   const plan = PLAN_CONFIG[variant];
-
+  const hasPremiumPlan = user?.publicMetadata?.subscriptionPlan === "premium";
+  const cta =
+    variant === "pro" && hasPremiumPlan ? "Gerenciar assinatura" : plan.cta;
   return (
     <Card className={cn(planCardVariants({ variant }), className)}>
       <CardHeader className="relative border-b border-solid py-8">
@@ -97,7 +102,7 @@ export function PlanCard({ variant, className, onClick }: PlanCardProps) {
           className="w-full rounded-full font-bold"
           onClick={onClick}
         >
-          {plan.cta}
+          {cta}
         </Button>
       </CardContent>
     </Card>
