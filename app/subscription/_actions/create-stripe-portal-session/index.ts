@@ -12,7 +12,8 @@ export const createStripePortalSession = async () => {
     };
   }
 
-  const customerId = user.privateMetadata.stripe_customer_id;
+  const customerId =
+    user.privateMetadata.stripeCustomerId ?? user.privateMetadata.stripe_customer_id;
 
   if (!process.env.STRIPE_SECRET_KEY) {
     return {

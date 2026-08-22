@@ -2,69 +2,122 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-//http://localhost:3000/api/webhoks/stripe
-export const POST = async (request: Request) => {
-  const signature = request.headers.get("stripe-signature");
-  // Verifica se a requisição é uma requisição POST
-  if (!signature) {
-    return NextResponse.error();
+function toStripeId(value: string | { id: string } | null | undefined) {
+  if (!value) {
+    return undefined;
   }
 
-  if (!process.env.STRIPE_WEBHOOK_SECRET || !process.env.STRIPE_SECRET_KEY) {
-    return NextResponse.error();
-  }
+  return typeof value === "string" ? value : value.id;
+}
 
-  const text = await request.text();
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2026-07-29.dahlia",
+async function updateClerkSubscriptionMetadata(
+  clerkUserId: string,
+  {
+    stripeCustomerId,
+    stripeSubscriptionId,
+    subscriptionPlan,
+  }: {
+    stripeCustomerId: string | null;
+    stripeSubscriptionId: string | null;
+    subscriptionPlan: "premium" | null;
+  },
+) {
+  const clerk = await clerkClient();
+  await clerk.users.updateUserMetadata(clerkUserId, {
+    privateMetadata: {
+      stripeCustomerId,
+      stripeSubscriptionId,
+    },
+    publicMetadata: {
+      subscriptionPlan,
+    },
   });
+}
 
-  const event = stripe.webhooks.constructEvent(text, signature, process.env.STRIPE_WEBHOOK_SECRET);
+export async function POST(request: Request) {
+  try {
+    if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+      return NextResponse.json({ error: "Stripe is not configured" }, { status: 500 });
+    }
 
-  switch (event.type) {
-    case "invoice.paid": {
-      //atualizar o status do usuário com o novo plano
-      const invoice = event.data.object;
-      const subscriptionDetails = invoice.parent?.subscription_details;
-      const clerkUserId = subscriptionDetails?.metadata?.clerk_user_id;
-      if (!clerkUserId) {
-        return NextResponse.error();
-      }
+    const signature = request.headers.get("stripe-signature");
+    if (!signature) {
+      return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
+    }
 
-      const clerk = await clerkClient();
-      await clerk.users.updateUser(clerkUserId, {
-        privateMetadata: {
-          stripe_subscription_id: subscriptionDetails.subscription,
-          stripe_customer_id: invoice.customer,
-        },
-        publicMetadata: {
+    const text = await request.text();
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2026-07-29.dahlia",
+    });
+    const event = stripe.webhooks.constructEvent(text, signature, process.env.STRIPE_WEBHOOK_SECRET);
+
+    switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object;
+        if (session.mode !== "subscription") {
+          break;
+        }
+
+        const clerkUserId = session.metadata?.clerk_user_id ?? session.client_reference_id;
+        const stripeCustomerId = toStripeId(session.customer);
+        const stripeSubscriptionId = toStripeId(session.subscription);
+
+        if (!clerkUserId || !stripeCustomerId || !stripeSubscriptionId) {
+          console.error("Stripe checkout.session.completed missing Clerk or Stripe IDs", {
+            clerkUserId,
+            stripeCustomerId,
+            stripeSubscriptionId,
+          });
+          return NextResponse.json({ error: "Missing subscription data" }, { status: 400 });
+        }
+
+        await updateClerkSubscriptionMetadata(clerkUserId, {
+          stripeCustomerId,
+          stripeSubscriptionId,
           subscriptionPlan: "premium",
-        },
-      });
-      break;
-    }
-    case "customer.subscription.deleted": {
-      // buscar id da subscription details no stripe
-      const subscription = await stripe.subscriptions.retrieve(event.data.object.id);
-      const clerkUserId = subscription.metadata.clerk_user_id;
-
-      if (!clerkUserId) {
-        return NextResponse.error();
+        });
+        break;
       }
+      case "invoice.paid": {
+        const invoice = event.data.object;
+        const subscriptionDetails = invoice.parent?.subscription_details;
+        const stripeCustomerId = toStripeId(invoice.customer);
+        const stripeSubscriptionId = toStripeId(subscriptionDetails?.subscription);
+        const clerkUserId =
+          subscriptionDetails?.metadata?.clerk_user_id ??
+          (stripeSubscriptionId
+            ? (await stripe.subscriptions.retrieve(stripeSubscriptionId)).metadata.clerk_user_id
+            : undefined);
 
-      //atualizar o status do usuário com o plano free
+        if (!clerkUserId || !stripeCustomerId || !stripeSubscriptionId) {
+          break;
+        }
 
-      (await clerkClient()).users.updateUser(clerkUserId, {
-        privateMetadata: {
-          stripe_subscription_id: null,
-          stripe_customer_id: null,
-        },
-        publicMetadata: {
+        await updateClerkSubscriptionMetadata(clerkUserId, {
+          stripeCustomerId,
+          stripeSubscriptionId,
+          subscriptionPlan: "premium",
+        });
+        break;
+      }
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object;
+        const clerkUserId = subscription.metadata.clerk_user_id;
+        if (!clerkUserId) {
+          break;
+        }
+
+        await updateClerkSubscriptionMetadata(clerkUserId, {
+          stripeCustomerId: null,
+          stripeSubscriptionId: null,
           subscriptionPlan: null,
-        },
-      });
+        });
+      }
     }
-  }
 
-  return NextResponse.json({ received: true });
-};
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error("Stripe webhook error", error);
+    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
+  }
+}
