@@ -152,5 +152,11 @@
   }
   body {
     @apply h-full bg-background text-foreground;
+    button,
+    [type="button"],
+    [type="reset"],
+    [type="submit"] {
+      cursor: pointer;
+    }
   }
 }

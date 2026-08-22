@@ -67,13 +67,13 @@ export function PlanCard({ variant, className, onClick }: PlanCardProps) {
   const { user } = useUser();
   const plan = PLAN_CONFIG[variant];
   const hasPremiumPlan = user?.publicMetadata?.subscriptionPlan === "premium";
-  const cta =
-    variant === "pro" && hasPremiumPlan ? "Gerenciar assinatura" : plan.cta;
+  const badge = hasPremiumPlan ? "Plano ativo" : "Recomendado";
+  const cta = variant === "pro" && hasPremiumPlan ? "Gerenciar assinatura" : plan.cta;
   return (
     <Card className={cn(planCardVariants({ variant }), className)}>
       <CardHeader className="relative border-b border-solid py-8">
         {plan.badge && (
-          <Badge className="absolute top-4 right-4 bg-primary/10 text-primary">{plan.badge}</Badge>
+          <Badge className="absolute top-4 right-4 bg-primary/10 text-primary">{badge}</Badge>
         )}
 
         <CardTitle className="text-center text-2xl font-semibold">{plan.name}</CardTitle>
@@ -98,9 +98,9 @@ export function PlanCard({ variant, className, onClick }: PlanCardProps) {
         ))}
 
         <Button
-          variant={plan.ctaButtonVariant}
           className="w-full rounded-full font-bold"
           onClick={onClick}
+          variant={hasPremiumPlan ? "link" : "default"}
         >
           {cta}
         </Button>
