@@ -1,16 +1,19 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 
 export const createStripeCheckout = async () => {
   const { userId } = await auth();
+  const user = await currentUser();
 
-  if (!userId) {
+  if (!userId || !user) {
     return {
       error: "Unauthorized",
     };
   }
+
+  const existingCustomerId = user.privateMetadata.stripeCustomerId;
 
   if (!process.env.STRIPE_SECRET_KEY) {
     return {
@@ -23,6 +26,8 @@ export const createStripeCheckout = async () => {
   });
 
   const session = await stripe.checkout.sessions.create({
+    ...(typeof existingCustomerId === "string" ? { customer: existingCustomerId } : {}),
+
     payment_method_types: ["card"],
     mode: "subscription",
     success_url: "http://localhost:3000/subscription",

@@ -19,11 +19,11 @@ async function updateClerkSubscriptionMetadata(
   }: {
     stripeCustomerId: string | null;
     stripeSubscriptionId: string | null;
-    subscriptionPlan: "premium" | null;
-  },
+    subscriptionPlan: "premium" | "basic" | null;
+  }
 ) {
   const clerk = await clerkClient();
-  await clerk.users.updateUserMetadata(clerkUserId, {
+  await clerk.users.replaceUserMetadata(clerkUserId, {
     privateMetadata: {
       stripeCustomerId,
       stripeSubscriptionId,
@@ -49,7 +49,11 @@ export async function POST(request: Request) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: "2026-07-29.dahlia",
     });
-    const event = stripe.webhooks.constructEvent(text, signature, process.env.STRIPE_WEBHOOK_SECRET);
+    const event = stripe.webhooks.constructEvent(
+      text,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
 
     switch (event.type) {
       case "checkout.session.completed": {
@@ -103,14 +107,31 @@ export async function POST(request: Request) {
       case "customer.subscription.deleted": {
         const subscription = event.data.object;
         const clerkUserId = subscription.metadata.clerk_user_id;
+
         if (!clerkUserId) {
           break;
         }
 
+        const clerk = await clerkClient();
+
+        const user = await clerk.users.getUser(clerkUserId);
+
+        const currentSubscriptionId =
+          typeof user.privateMetadata.stripeSubscriptionId === "string"
+            ? user.privateMetadata.stripeSubscriptionId
+            : undefined;
+
+        if (currentSubscriptionId && currentSubscriptionId !== subscription.id) {
+          break; // já tem uma assinatura mais nova
+        }
+        // TODO: Implement the logic to update the subscription plan to basic
         await updateClerkSubscriptionMetadata(clerkUserId, {
-          stripeCustomerId: null,
+          stripeCustomerId:
+            typeof user.privateMetadata.stripeCustomerId === "string"
+              ? user.privateMetadata.stripeCustomerId
+              : null,
           stripeSubscriptionId: null,
-          subscriptionPlan: null,
+          subscriptionPlan: "basic",
         });
       }
     }
