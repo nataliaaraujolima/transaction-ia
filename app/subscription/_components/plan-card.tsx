@@ -2,6 +2,7 @@
 import { useUser } from "@clerk/nextjs";
 import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, XIcon } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/app/_lib/utils";
 import { Badge } from "../../shared/_components/ui/badge";
 import { Button } from "../../shared/_components/ui/button";
@@ -21,13 +22,22 @@ const planCardVariants = cva("w-full max-w-[450px] gap-0 py-0 bg-(--background-b
 
 type PlanVariant = NonNullable<VariantProps<typeof planCardVariants>["variant"]>;
 
+type PlanConfig = {
+  name: string;
+  price: number;
+  badge?: string;
+  cta: string;
+  ctaButtonVariant: "default" | "outline";
+  features: { label: string; included: boolean }[];
+};
+
 const PLAN_CONFIG = {
   basic: {
     name: "Plano Básico",
     price: 0,
     badge: undefined,
     cta: "Fazer upgrade",
-    ctaButtonVariant: "outline" as const,
+    ctaButtonVariant: "outline",
     features: [
       { label: "Apenas 10 transações por mês", included: true },
       { label: "Relatórios de IA", included: false },
@@ -38,24 +48,44 @@ const PLAN_CONFIG = {
     price: 21,
     badge: "Recomendado",
     cta: "Adquirir plano",
-    ctaButtonVariant: "default" as const,
+    ctaButtonVariant: "default",
     features: [
       { label: "Transações ilimitadas", included: true },
       { label: "Relatórios de IA", included: true },
       { label: "Integração com open finance", included: true },
     ],
   },
-} satisfies Record<
-  PlanVariant,
-  {
-    name: string;
-    price: number;
-    badge?: string;
-    cta: string;
-    ctaButtonVariant: "default" | "outline";
-    features: { label: string; included: boolean }[];
+} satisfies Record<PlanVariant, PlanConfig>;
+
+const CTA_CLASS_NAME = "w-full rounded-full font-bold";
+const STRIPE_CUSTOMER_PORTAL_URL = process.env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_URL ?? "";
+
+interface PlanCardCtaProps {
+  hasPremiumPlan: boolean;
+  plan: PlanConfig;
+  email?: string;
+  onClick?: () => void | Promise<void>;
+}
+
+function PlanButtonCta({ hasPremiumPlan, plan, email, onClick }: PlanCardCtaProps) {
+  if (hasPremiumPlan) {
+    const portalHref = email
+      ? `${STRIPE_CUSTOMER_PORTAL_URL}?prefilled_email=${encodeURIComponent(email)}`
+      : STRIPE_CUSTOMER_PORTAL_URL;
+
+    return (
+      <Button className={CTA_CLASS_NAME} variant="link" render={<Link href={portalHref} />}>
+        Gerenciar assinatura
+      </Button>
+    );
   }
->;
+
+  return (
+    <Button className={CTA_CLASS_NAME} onClick={onClick} variant={plan.ctaButtonVariant}>
+      {plan.cta}
+    </Button>
+  );
+}
 
 interface PlanCardProps extends VariantProps<typeof planCardVariants> {
   variant: PlanVariant;
@@ -67,12 +97,12 @@ export function PlanCard({ variant, className, onClick }: PlanCardProps) {
   const { user } = useUser();
   const plan = PLAN_CONFIG[variant];
   const hasPremiumPlan = user?.publicMetadata?.subscriptionPlan === "premium";
-  const badge = hasPremiumPlan ? "Plano ativo" : "Recomendado";
-  const cta = variant === "pro" && hasPremiumPlan ? "Gerenciar assinatura" : plan.cta;
+  const badge = hasPremiumPlan && variant === "pro" ? "Plano ativo" : plan.badge;
+
   return (
     <Card className={cn(planCardVariants({ variant }), className)}>
       <CardHeader className="relative border-b border-solid py-8">
-        {plan.badge && (
+        {badge && (
           <Badge className="absolute top-4 right-4 bg-primary/10 text-primary">{badge}</Badge>
         )}
 
@@ -97,13 +127,12 @@ export function PlanCard({ variant, className, onClick }: PlanCardProps) {
           </div>
         ))}
 
-        <Button
-          className="w-full rounded-full font-bold"
+        <PlanButtonCta
+          email={user?.emailAddresses[0]?.emailAddress}
+          hasPremiumPlan={hasPremiumPlan && variant === "pro"}
           onClick={onClick}
-          variant={hasPremiumPlan ? "link" : "default"}
-        >
-          {cta}
-        </Button>
+          plan={plan}
+        />
       </CardContent>
     </Card>
   );
