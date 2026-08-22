@@ -43,6 +43,27 @@ export const POST = async (request: Request) => {
       });
       break;
     }
+    case "customer.subscription.deleted": {
+      // buscar id da subscription details no stripe
+      const subscription = await stripe.subscriptions.retrieve(event.data.object.id);
+      const clerkUserId = subscription.metadata.clerk_user_id;
+
+      if (!clerkUserId) {
+        return NextResponse.error();
+      }
+
+      //atualizar o status do usuário com o plano free
+
+      (await clerkClient()).users.updateUser(clerkUserId, {
+        privateMetadata: {
+          stripe_subscription_id: null,
+          stripe_customer_id: null,
+        },
+        publicMetadata: {
+          subscriptionPlan: null,
+        },
+      });
+    }
   }
 
   return NextResponse.json({ received: true });

@@ -2,11 +2,11 @@
 import { useUser } from "@clerk/nextjs";
 import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, XIcon } from "lucide-react";
-import Link from "next/link";
 import { cn } from "@/app/_lib/utils";
 import { Badge } from "../../shared/_components/ui/badge";
 import { Button } from "../../shared/_components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../shared/_components/ui/card";
+import { createStripePortalSession } from "../_actions/create-stripe-portal-session";
 
 const planCardVariants = cva("w-full max-w-[450px] gap-0 py-0 bg-(--background-black)", {
   variants: {
@@ -58,23 +58,27 @@ const PLAN_CONFIG = {
 } satisfies Record<PlanVariant, PlanConfig>;
 
 const CTA_CLASS_NAME = "w-full rounded-full font-bold";
-const STRIPE_CUSTOMER_PORTAL_URL = process.env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_URL ?? "";
 
 interface PlanCardCtaProps {
   hasPremiumPlan: boolean;
   plan: PlanConfig;
-  email?: string;
   onClick?: () => void | Promise<void>;
 }
 
-function PlanButtonCta({ hasPremiumPlan, plan, email, onClick }: PlanCardCtaProps) {
-  if (hasPremiumPlan) {
-    const portalHref = email
-      ? `${STRIPE_CUSTOMER_PORTAL_URL}?prefilled_email=${encodeURIComponent(email)}`
-      : STRIPE_CUSTOMER_PORTAL_URL;
+function PlanButtonCta({ hasPremiumPlan, plan, onClick }: PlanCardCtaProps) {
+  async function handleManageSubscriptionClick() {
+    const portal = await createStripePortalSession();
 
+    if (!("url" in portal) || !portal.url) {
+      throw new Error(portal.error ?? "Stripe portal URL is not set");
+    }
+
+    window.location.assign(portal.url);
+  }
+
+  if (hasPremiumPlan) {
     return (
-      <Button className={CTA_CLASS_NAME} variant="link" render={<Link href={portalHref} />}>
+      <Button className={CTA_CLASS_NAME} onClick={handleManageSubscriptionClick} variant="link">
         Gerenciar assinatura
       </Button>
     );
@@ -128,7 +132,6 @@ export function PlanCard({ variant, className, onClick }: PlanCardProps) {
         ))}
 
         <PlanButtonCta
-          email={user?.emailAddresses[0]?.emailAddress}
           hasPremiumPlan={hasPremiumPlan && variant === "pro"}
           onClick={onClick}
           plan={plan}
