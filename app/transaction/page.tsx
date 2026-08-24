@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "../_lib/prisma";
 import NavBar from "../shared/_components/common/nav-bar";
+import { currentMonthTransactionCount } from "../subscription/_helpers/current-month-transaction-count";
 import AddTransactionBankButton from "./_components/add-transaction-bank-button";
 import AddTransactionManualButton from "./_components/add-transaction-manual-button";
 import { TransactionTable } from "./_components/transaction-table";
@@ -23,13 +24,15 @@ export const Transaction = async () => {
     amount: Number(transaction.amount),
   }));
 
+  const { currentMonthTransactionLimit } = await currentMonthTransactionCount(userId);
+
   return (
     <div className="space-y-4 overflow-hidden p-6">
       <NavBar />
       <h1 className="pt-4 text-2xl font-bold tracking-tight">Transações</h1>
       <div className="flex shrink-0 gap-4">
-        <AddTransactionManualButton />
-        <AddTransactionBankButton />
+        <AddTransactionManualButton currentMonthTransactionLimit={currentMonthTransactionLimit} />
+        <AddTransactionBankButton currentMonthTransactionLimit={currentMonthTransactionLimit} />
       </div>
       <TransactionTable transactions={transactions} />
     </div>

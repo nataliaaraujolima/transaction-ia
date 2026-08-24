@@ -5,7 +5,12 @@ import { useState } from "react";
 import { Button } from "../../shared/_components/ui/button";
 import TransactionDialogWrapper from "./transaction-dialog-wrapper";
 
-export default function AddTransactionManualButton() {
+interface AddTransactionManualButtonProps {
+  currentMonthTransactionLimit?: boolean;
+}
+export default function AddTransactionManualButton({
+  currentMonthTransactionLimit = false,
+}: AddTransactionManualButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   function handleOPenModal() {
@@ -14,7 +19,7 @@ export default function AddTransactionManualButton() {
 
   return (
     <>
-      <Button onClick={handleOPenModal}>
+      <Button onClick={handleOPenModal} disabled={currentMonthTransactionLimit}>
         Adicionar transação
         <Repeat />
       </Button>

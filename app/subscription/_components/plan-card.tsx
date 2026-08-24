@@ -8,6 +8,8 @@ import { Button } from "../../shared/_components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../shared/_components/ui/card";
 import { createStripePortalSession } from "../_actions/create-stripe-portal-session";
 
+const BASIC_MONTHLY_TRANSACTION_LIMIT = 10;
+
 const planCardVariants = cva("w-full max-w-[450px] gap-0 py-0 bg-(--background-black)", {
   variants: {
     variant: {
@@ -22,13 +24,19 @@ const planCardVariants = cva("w-full max-w-[450px] gap-0 py-0 bg-(--background-b
 
 type PlanVariant = NonNullable<VariantProps<typeof planCardVariants>["variant"]>;
 
+type PlanFeature = {
+  label: string;
+  included: boolean;
+  hint?: string;
+};
+
 type PlanConfig = {
   name: string;
   price: number;
   badge?: string;
   cta: string;
   ctaButtonVariant: "default" | "outline";
-  features: { label: string; included: boolean }[];
+  features: PlanFeature[];
 };
 
 const PLAN_CONFIG = {
@@ -39,7 +47,7 @@ const PLAN_CONFIG = {
     cta: "Fazer upgrade",
     ctaButtonVariant: "outline",
     features: [
-      { label: "Apenas 10 transações por mês", included: true },
+      { label: `Apenas ${BASIC_MONTHLY_TRANSACTION_LIMIT} transações por mês`, included: true },
       { label: "Relatórios de IA", included: false },
     ],
   },
@@ -56,6 +64,23 @@ const PLAN_CONFIG = {
     ],
   },
 } satisfies Record<PlanVariant, PlanConfig>;
+
+function getPlanFeatures(variant: PlanVariant, currentMonthTransactions?: number): PlanFeature[] {
+  const features = PLAN_CONFIG[variant].features;
+
+  if (variant !== "basic" || currentMonthTransactions == null) {
+    return features;
+  }
+
+  return features.map((feature, index) =>
+    index === 0
+      ? {
+          ...feature,
+          hint: `${currentMonthTransactions}/${BASIC_MONTHLY_TRANSACTION_LIMIT}`,
+        }
+      : feature
+  );
+}
 
 const CTA_CLASS_NAME = "w-full rounded-full font-bold";
 
@@ -95,11 +120,13 @@ interface PlanCardProps extends VariantProps<typeof planCardVariants> {
   variant: PlanVariant;
   className?: string;
   onClick?: () => void | Promise<void>;
+  currentMonthTransactions?: number;
 }
 
-export function PlanCard({ variant, className, onClick }: PlanCardProps) {
+export function PlanCard({ variant, className, onClick, currentMonthTransactions }: PlanCardProps) {
   const { user } = useUser();
   const plan = PLAN_CONFIG[variant];
+  const features = getPlanFeatures(variant, currentMonthTransactions);
   const hasPremiumPlan = user?.publicMetadata?.subscriptionPlan === "premium";
   const badge = hasPremiumPlan && variant === "pro" ? "Plano ativo" : plan.badge;
 
@@ -120,14 +147,17 @@ export function PlanCard({ variant, className, onClick }: PlanCardProps) {
       </CardHeader>
 
       <CardContent className="space-y-6 py-8">
-        {plan.features.map((feature) => (
-          <div key={feature.label} className="flex items-center gap-2">
+        {features.map((feature) => (
+          <div key={feature.label} className="flex items-start gap-2">
             {feature.included ? (
-              <CheckIcon className="size-4 shrink-0 text-primary" />
+              <CheckIcon className="mt-0.5 size-4 shrink-0 text-primary" />
             ) : (
-              <XIcon className="size-4 shrink-0 text-muted-foreground" />
+              <XIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
             )}
-            <p>{feature.label}</p>
+            <div>
+              <p>{feature.label}</p>
+              {feature.hint && <p className="text-sm text-muted-foreground">{feature.hint}</p>}
+            </div>
           </div>
         ))}
 
