@@ -3,7 +3,7 @@ import { isMatch } from "date-fns";
 import { redirect } from "next/navigation";
 import NavBar from "../shared/_components/common/nav-bar";
 import { Button } from "../shared/_components/ui/button";
-import { currentMonthTransactionCount } from "../subscription/_helpers/current-month-transaction-count";
+import { canUserAddTransaction } from "../subscription/_helpers/can-user-add-transaciton";
 import AddTransactionManualButton from "../transaction/_components/add-transaction-manual-button";
 import { CardTransactions } from "./_components/card-transactions";
 import { ChartCategory } from "./_components/chaste-category";
@@ -42,7 +42,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
 
   const dashboardData = await getDashboard({ userId, where });
   const { balance, depositsTotal, investmentsTotal, expensesTotal } = dashboardData;
-  const { currentMonthTransactionLimit } = await currentMonthTransactionCount();
+  const userCanAddTransaction = await canUserAddTransaction();
 
   return (
     <div className="space-y-4 p-6">
@@ -52,7 +52,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
         <div className="flex items-center gap-2">
           <Button>Relatório IA</Button>
           <SelectDate month={selectedMonth} />
-          <AddTransactionManualButton currentMonthTransactionLimit={currentMonthTransactionLimit} />
+          <AddTransactionManualButton userCanAddTransaction={userCanAddTransaction} />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr,1fr]">

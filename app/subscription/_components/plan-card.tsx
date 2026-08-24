@@ -123,18 +123,13 @@ interface PlanCardProps extends VariantProps<typeof planCardVariants> {
   variant: PlanVariant;
   className?: string;
   onClick?: () => void | Promise<void>;
-  currentMonthTransactionLimit?: boolean;
+  userCanAddTransaction?: boolean;
 }
 
-export function PlanCard({
-  variant,
-  className,
-  onClick,
-  currentMonthTransactionLimit,
-}: PlanCardProps) {
+export function PlanCard({ variant, className, onClick, userCanAddTransaction }: PlanCardProps) {
   const { user } = useUser();
   const plan = PLAN_CONFIG[variant];
-  const features = getPlanFeatures(variant, currentMonthTransactionLimit);
+  const features = getPlanFeatures(variant, userCanAddTransaction);
   const hasPremiumPlan = user?.publicMetadata?.subscriptionPlan === "premium";
   const badge = hasPremiumPlan && variant === "pro" ? "Plano ativo" : plan.badge;
 

@@ -16,9 +16,9 @@ import { syncPluggyItem } from "../_actions/sync-pluggy-item";
 import type { SyncedPluggyAccount } from "../_types/pluggy-sync";
 
 export default function AddTransactionBankButton({
-  currentMonthTransactionLimit,
+  userCanAddTransaction,
 }: {
-  currentMonthTransactionLimit: boolean;
+  userCanAddTransaction: boolean;
 }) {
   const [connectToken, setConnectToken] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -72,7 +72,7 @@ export default function AddTransactionBankButton({
           <TooltipTrigger delay={200} render={<span className="inline-flex" />}>
             <Button
               onClick={() => setIsOpen(true)}
-              disabled={isDisabled || currentMonthTransactionLimit}
+              disabled={isDisabled || userCanAddTransaction}
               className={cn(isDisabled && "text-muted-foreground bg-muted cursor-not-allowed")}
             >
               {isSyncing ? "Conectando a conta bancária..." : "Conectar Conta Bancária"}

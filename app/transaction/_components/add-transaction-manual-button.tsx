@@ -14,11 +14,11 @@ import { Button } from "../../shared/_components/ui/button";
 import TransactionDialogWrapper from "./transaction-dialog-wrapper";
 
 interface AddTransactionManualButtonProps {
-  currentMonthTransactionLimit?: boolean;
+  userCanAddTransaction?: boolean;
 }
 
 export default function AddTransactionManualButton({
-  currentMonthTransactionLimit = false,
+  userCanAddTransaction = false,
 }: AddTransactionManualButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,7 +33,7 @@ export default function AddTransactionManualButton({
           <TooltipTrigger
             render={
               <span className="inline-flex">
-                <Button onClick={handleOpenModal} disabled={currentMonthTransactionLimit}>
+                <Button onClick={handleOpenModal} disabled={userCanAddTransaction}>
                   Adicionar transação
                   <Repeat />
                 </Button>
@@ -41,7 +41,7 @@ export default function AddTransactionManualButton({
             }
           />
 
-          {currentMonthTransactionLimit && (
+          {userCanAddTransaction && (
             <TooltipContent side="top">
               Você atingiu o limite de transações para o mês, atualize seu plano para continuar.
             </TooltipContent>
