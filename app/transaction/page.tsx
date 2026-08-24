@@ -24,7 +24,7 @@ export const Transaction = async () => {
     amount: Number(transaction.amount),
   }));
 
-  const { currentMonthTransactionLimit } = await currentMonthTransactionCount(userId);
+  const { currentMonthTransactionLimit } = await currentMonthTransactionCount();
 
   return (
     <div className="space-y-4 overflow-hidden p-6">

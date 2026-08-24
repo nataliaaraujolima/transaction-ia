@@ -42,7 +42,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
 
   const dashboardData = await getDashboard({ userId, where });
   const { balance, depositsTotal, investmentsTotal, expensesTotal } = dashboardData;
-  const { currentMonthTransactionLimit } = await currentMonthTransactionCount(userId);
+  const { currentMonthTransactionLimit } = await currentMonthTransactionCount();
 
   return (
     <div className="space-y-4 p-6">

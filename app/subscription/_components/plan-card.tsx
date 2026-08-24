@@ -65,10 +65,13 @@ const PLAN_CONFIG = {
   },
 } satisfies Record<PlanVariant, PlanConfig>;
 
-function getPlanFeatures(variant: PlanVariant, currentMonthTransactions?: number): PlanFeature[] {
+function getPlanFeatures(
+  variant: PlanVariant,
+  currentMonthTransactionLimit?: boolean
+): PlanFeature[] {
   const features = PLAN_CONFIG[variant].features;
 
-  if (variant !== "basic" || currentMonthTransactions == null) {
+  if (variant !== "basic" || currentMonthTransactionLimit == null) {
     return features;
   }
 
@@ -76,7 +79,7 @@ function getPlanFeatures(variant: PlanVariant, currentMonthTransactions?: number
     index === 0
       ? {
           ...feature,
-          hint: `${currentMonthTransactions}/${BASIC_MONTHLY_TRANSACTION_LIMIT}`,
+          hint: `${currentMonthTransactionLimit}/${BASIC_MONTHLY_TRANSACTION_LIMIT}`,
         }
       : feature
   );
@@ -120,13 +123,18 @@ interface PlanCardProps extends VariantProps<typeof planCardVariants> {
   variant: PlanVariant;
   className?: string;
   onClick?: () => void | Promise<void>;
-  currentMonthTransactions?: number;
+  currentMonthTransactionLimit?: boolean;
 }
 
-export function PlanCard({ variant, className, onClick, currentMonthTransactions }: PlanCardProps) {
+export function PlanCard({
+  variant,
+  className,
+  onClick,
+  currentMonthTransactionLimit,
+}: PlanCardProps) {
   const { user } = useUser();
   const plan = PLAN_CONFIG[variant];
-  const features = getPlanFeatures(variant, currentMonthTransactions);
+  const features = getPlanFeatures(variant, currentMonthTransactionLimit);
   const hasPremiumPlan = user?.publicMetadata?.subscriptionPlan === "premium";
   const badge = hasPremiumPlan && variant === "pro" ? "Plano ativo" : plan.badge;
 

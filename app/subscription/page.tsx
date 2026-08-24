@@ -8,7 +8,7 @@ import { currentMonthTransactionCount } from "./_helpers/current-month-transacti
 
 export default async function Subscription() {
   const { userId } = await auth();
-  const { currentMonthTransactions } = await currentMonthTransactionCount(userId);
+  const { currentMonthTransactionLimit } = await currentMonthTransactionCount();
 
   if (!userId) {
     return redirect("/");
@@ -19,7 +19,7 @@ export default async function Subscription() {
       <NavBar />
       <h1 className="pt-4 text-2xl font-bold tracking-tight">Assinatura</h1>
       <div className="flex flex-col gap-6 md:flex-row">
-        <PlanCard currentMonthTransactions={currentMonthTransactions} variant="basic" />
+        <PlanCard currentMonthTransactionLimit={currentMonthTransactionLimit} variant="basic" />
         <AcquirePlanButton />
       </div>
     </div>
