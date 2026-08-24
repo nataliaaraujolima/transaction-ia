@@ -18,7 +18,7 @@ interface AddTransactionManualButtonProps {
 }
 
 export default function AddTransactionManualButton({
-  userCanAddTransaction = false,
+  userCanAddTransaction,
 }: AddTransactionManualButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,7 +33,7 @@ export default function AddTransactionManualButton({
           <TooltipTrigger
             render={
               <span className="inline-flex">
-                <Button onClick={handleOpenModal} disabled={userCanAddTransaction}>
+                <Button onClick={handleOpenModal} disabled={userCanAddTransaction === false}>
                   Adicionar transação
                   <Repeat />
                 </Button>
@@ -41,7 +41,7 @@ export default function AddTransactionManualButton({
             }
           />
 
-          {userCanAddTransaction && (
+          {userCanAddTransaction === false && (
             <TooltipContent side="top">
               Você atingiu o limite de transações para o mês, atualize seu plano para continuar.
             </TooltipContent>

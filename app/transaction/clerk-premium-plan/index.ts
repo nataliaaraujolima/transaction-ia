@@ -1,6 +1,6 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 
-export async function ClerkPremiumPlan(): Promise<boolean> {
+export async function ClerkPremiumPlan(): Promise<string> {
   const { userId } = await auth();
   if (!userId) {
     throw new Error("Unauthorized");
@@ -11,5 +11,5 @@ export async function ClerkPremiumPlan(): Promise<boolean> {
 
   const publicMetadata = clerkUser.publicMetadata as { subscriptionPlan?: string };
 
-  return publicMetadata.subscriptionPlan === "premium";
+  return publicMetadata.subscriptionPlan ?? "basic";
 }

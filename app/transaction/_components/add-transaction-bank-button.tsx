@@ -25,7 +25,6 @@ export default function AddTransactionBankButton({
   const [accounts, setAccounts] = useState<SyncedPluggyAccount[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  console.log("accounts", accounts);
 
   useEffect(() => {
     fetch("/api/create-pluggy-token", { method: "POST" })
