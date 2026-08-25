@@ -2,6 +2,10 @@
 
 import { auth, currentUser } from "@clerk/nextjs/server";
 import Stripe from "stripe";
+import {
+  CLERK_USER_ID_METADATA_KEY,
+  STRIPE_API_VERSION,
+} from "@/app/subscription/_constants/stripe-metadata";
 
 export const createStripeCheckout = async () => {
   const { userId } = await auth();
@@ -22,8 +26,14 @@ export const createStripeCheckout = async () => {
   }
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2026-07-29.dahlia",
+    apiVersion: STRIPE_API_VERSION,
   });
+
+  if (typeof existingCustomerId === "string") {
+    await stripe.customers.update(existingCustomerId, {
+      metadata: { [CLERK_USER_ID_METADATA_KEY]: userId },
+    });
+  }
 
   const session = await stripe.checkout.sessions.create({
     ...(typeof existingCustomerId === "string" ? { customer: existingCustomerId } : {}),
@@ -34,11 +44,11 @@ export const createStripeCheckout = async () => {
     cancel_url: "http://localhost:3000/subscription",
     client_reference_id: userId,
     metadata: {
-      clerk_user_id: userId,
+      [CLERK_USER_ID_METADATA_KEY]: userId,
     },
     subscription_data: {
       metadata: {
-        clerk_user_id: userId,
+        [CLERK_USER_ID_METADATA_KEY]: userId,
       },
     },
     line_items: [{ price: process.env.STRIPE_PREMIUM_PRICE_ID, quantity: 1 }],

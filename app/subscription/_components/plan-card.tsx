@@ -1,14 +1,12 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
 import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, XIcon } from "lucide-react";
 import { cn } from "@/app/_lib/utils";
+import { BASIC_MONTHLY_TRANSACTION_LIMIT } from "@/app/subscription/_constants/subscription-limits";
 import { Badge } from "../../shared/_components/ui/badge";
 import { Button } from "../../shared/_components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../shared/_components/ui/card";
 import { createStripePortalSession } from "../_actions/create-stripe-portal-session";
-
-const BASIC_MONTHLY_TRANSACTION_LIMIT = 10;
 
 const planCardVariants = cva("w-full max-w-[450px] gap-0 py-0 bg-(--background-black)", {
   variants: {
@@ -124,13 +122,18 @@ interface PlanCardProps extends VariantProps<typeof planCardVariants> {
   className?: string;
   onClick?: () => void | Promise<void>;
   userCanAddTransaction?: boolean;
+  hasPremiumPlan: boolean;
 }
 
-export function PlanCard({ variant, className, onClick, userCanAddTransaction }: PlanCardProps) {
-  const { user } = useUser();
+export function PlanCard({
+  variant,
+  className,
+  onClick,
+  userCanAddTransaction,
+  hasPremiumPlan,
+}: PlanCardProps) {
   const plan = PLAN_CONFIG[variant];
   const features = getPlanFeatures(variant, userCanAddTransaction);
-  const hasPremiumPlan = user?.publicMetadata?.subscriptionPlan === "premium";
   const badge = hasPremiumPlan && variant === "pro" ? "Plano ativo" : plan.badge;
 
   return (

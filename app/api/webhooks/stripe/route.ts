@@ -1,38 +1,8 @@
-import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-
-function toStripeId(value: string | { id: string } | null | undefined) {
-  if (!value) {
-    return undefined;
-  }
-
-  return typeof value === "string" ? value : value.id;
-}
-
-async function updateClerkSubscriptionMetadata(
-  clerkUserId: string,
-  {
-    stripeCustomerId,
-    stripeSubscriptionId,
-    subscriptionPlan,
-  }: {
-    stripeCustomerId: string | null;
-    stripeSubscriptionId: string | null;
-    subscriptionPlan: "premium" | "basic" | null;
-  }
-) {
-  const clerk = await clerkClient();
-  await clerk.users.replaceUserMetadata(clerkUserId, {
-    privateMetadata: {
-      stripeCustomerId,
-      stripeSubscriptionId,
-    },
-    publicMetadata: {
-      subscriptionPlan,
-    },
-  });
-}
+import { STRIPE_API_VERSION } from "@/app/subscription/_constants/stripe-metadata";
+import { toStripeId } from "@/app/subscription/_helpers/to-stripe-id";
+import { syncStripeSubscriptionToClerk } from "@/app/subscription/_usecases/sync-stripe-subscription-to-clerk";
 
 export async function POST(request: Request) {
   try {
@@ -40,99 +10,63 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Stripe is not configured" }, { status: 500 });
     }
 
-    const signature = request.headers.get("stripe-signature");
-    if (!signature) {
+    const stripeSignature = request.headers.get("stripe-signature");
+    if (!stripeSignature) {
       return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
     }
 
-    const text = await request.text();
+    const requestBody = await request.text();
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2026-07-29.dahlia",
+      apiVersion: STRIPE_API_VERSION,
     });
-    const event = stripe.webhooks.constructEvent(
-      text,
-      signature,
+    const stripeEvent = stripe.webhooks.constructEvent(
+      requestBody,
+      stripeSignature,
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    switch (event.type) {
+    switch (stripeEvent.type) {
       case "checkout.session.completed": {
-        const session = event.data.object;
-        if (session.mode !== "subscription") {
+        const checkoutSession = stripeEvent.data.object;
+        const isSubscriptionCheckout = checkoutSession.mode === "subscription";
+
+        if (!isSubscriptionCheckout) {
           break;
         }
 
-        const clerkUserId = session.metadata?.clerk_user_id ?? session.client_reference_id;
-        const stripeCustomerId = toStripeId(session.customer);
-        const stripeSubscriptionId = toStripeId(session.subscription);
+        const stripeCustomerId = toStripeId(checkoutSession.customer);
+        const stripeSubscriptionId = toStripeId(checkoutSession.subscription);
 
-        if (!clerkUserId || !stripeCustomerId || !stripeSubscriptionId) {
-          console.error("Stripe checkout.session.completed missing Clerk or Stripe IDs", {
-            clerkUserId,
+        if (!stripeCustomerId || !stripeSubscriptionId) {
+          console.error("Stripe checkout.session.completed missing Stripe IDs", {
             stripeCustomerId,
             stripeSubscriptionId,
           });
           return NextResponse.json({ error: "Missing subscription data" }, { status: 400 });
         }
 
-        await updateClerkSubscriptionMetadata(clerkUserId, {
-          stripeCustomerId,
-          stripeSubscriptionId,
-          subscriptionPlan: "premium",
-        });
+        const subscriptionFromCheckout = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+        await syncStripeSubscriptionToClerk({ stripe, subscription: subscriptionFromCheckout });
         break;
       }
       case "invoice.paid": {
-        const invoice = event.data.object;
-        const subscriptionDetails = invoice.parent?.subscription_details;
-        const stripeCustomerId = toStripeId(invoice.customer);
+        const paidInvoice = stripeEvent.data.object;
+        const subscriptionDetails = paidInvoice.parent?.subscription_details;
         const stripeSubscriptionId = toStripeId(subscriptionDetails?.subscription);
-        const clerkUserId =
-          subscriptionDetails?.metadata?.clerk_user_id ??
-          (stripeSubscriptionId
-            ? (await stripe.subscriptions.retrieve(stripeSubscriptionId)).metadata.clerk_user_id
-            : undefined);
 
-        if (!clerkUserId || !stripeCustomerId || !stripeSubscriptionId) {
+        if (!stripeSubscriptionId) {
           break;
         }
 
-        await updateClerkSubscriptionMetadata(clerkUserId, {
-          stripeCustomerId,
-          stripeSubscriptionId,
-          subscriptionPlan: "premium",
-        });
+        const subscriptionFromInvoice = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+        await syncStripeSubscriptionToClerk({ stripe, subscription: subscriptionFromInvoice });
         break;
       }
+      case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const subscription = event.data.object;
-        const clerkUserId = subscription.metadata.clerk_user_id;
-
-        if (!clerkUserId) {
-          break;
-        }
-
-        const clerk = await clerkClient();
-
-        const user = await clerk.users.getUser(clerkUserId);
-
-        const currentSubscriptionId =
-          typeof user.privateMetadata.stripeSubscriptionId === "string"
-            ? user.privateMetadata.stripeSubscriptionId
-            : undefined;
-
-        if (currentSubscriptionId && currentSubscriptionId !== subscription.id) {
-          break; // já tem uma assinatura mais nova
-        }
-        // TODO: Implement the logic to update the subscription plan to basic
-        await updateClerkSubscriptionMetadata(clerkUserId, {
-          stripeCustomerId:
-            typeof user.privateMetadata.stripeCustomerId === "string"
-              ? user.privateMetadata.stripeCustomerId
-              : null,
-          stripeSubscriptionId: null,
-          subscriptionPlan: "basic",
-        });
+        const updatedSubscription = stripeEvent.data.object;
+        await syncStripeSubscriptionToClerk({ stripe, subscription: updatedSubscription });
+        break;
       }
     }
 

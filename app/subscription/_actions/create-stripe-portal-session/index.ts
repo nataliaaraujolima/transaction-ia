@@ -2,6 +2,12 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import Stripe from "stripe";
+import {
+  CLERK_STRIPE_CUSTOMER_ID_METADATA_KEY,
+  LEGACY_CLERK_STRIPE_CUSTOMER_ID_METADATA_KEY,
+  STRIPE_API_VERSION,
+} from "@/app/subscription/_constants/stripe-metadata";
+import { getClerkMetadataString } from "@/app/subscription/_helpers/get-clerk-metadata-string";
 
 export const createStripePortalSession = async () => {
   const user = await currentUser();
@@ -12,8 +18,9 @@ export const createStripePortalSession = async () => {
     };
   }
 
-  const customerId =
-    user.privateMetadata.stripeCustomerId ?? user.privateMetadata.stripe_customer_id;
+  const stripeCustomerId =
+    getClerkMetadataString(user.privateMetadata, CLERK_STRIPE_CUSTOMER_ID_METADATA_KEY) ??
+    getClerkMetadataString(user.privateMetadata, LEGACY_CLERK_STRIPE_CUSTOMER_ID_METADATA_KEY);
 
   if (!process.env.STRIPE_SECRET_KEY) {
     return {
@@ -21,20 +28,20 @@ export const createStripePortalSession = async () => {
     };
   }
 
-  if (typeof customerId !== "string" || !customerId) {
+  if (!stripeCustomerId) {
     return {
       error: "Stripe customer is not set",
     };
   }
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2026-07-29.dahlia",
+    apiVersion: STRIPE_API_VERSION,
   });
 
-  const session = await stripe.billingPortal.sessions.create({
-    customer: customerId,
+  const portalSession = await stripe.billingPortal.sessions.create({
+    customer: stripeCustomerId,
     return_url: "http://localhost:3000/subscription",
   });
 
-  return { url: session.url };
+  return { url: portalSession.url };
 };

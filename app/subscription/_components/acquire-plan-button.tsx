@@ -3,7 +3,7 @@
 import { createStripeCheckout } from "../_actions/create-stripe-checkout";
 import { PlanCard } from "./plan-card";
 
-export const AcquirePlanButton = () => {
+export const AcquirePlanButton = ({ hasPremiumPlan }: { hasPremiumPlan: boolean }) => {
   async function handleAcquirePlanClick() {
     const checkout = await createStripeCheckout();
 
@@ -14,5 +14,7 @@ export const AcquirePlanButton = () => {
     window.location.assign(checkout.url);
   }
 
-  return <PlanCard variant="pro" onClick={handleAcquirePlanClick} />;
+  return (
+    <PlanCard hasPremiumPlan={hasPremiumPlan} onClick={handleAcquirePlanClick} variant="pro" />
+  );
 };

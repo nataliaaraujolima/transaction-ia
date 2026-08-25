@@ -1,0 +1,1 @@
+export const BASIC_MONTHLY_TRANSACTION_LIMIT = 10;
