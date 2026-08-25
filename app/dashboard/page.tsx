@@ -2,9 +2,10 @@ import { auth } from "@clerk/nextjs/server";
 import { isMatch } from "date-fns";
 import { redirect } from "next/navigation";
 import NavBar from "../shared/_components/common/nav-bar";
-import { Button } from "../shared/_components/ui/button";
 import { canUserAddTransaction } from "../subscription/_helpers/can-user-add-transaciton";
 import AddTransactionManualButton from "../transaction/_components/add-transaction-manual-button";
+import { ClerkPremiumPlan } from "../transaction/clerk-premium-plan";
+import AiReportButton from "./_components/ai-report-button";
 import { CardTransactions } from "./_components/card-transactions";
 import { ChartCategory } from "./_components/chaste-category";
 import { SelectDate } from "./_components/select-date";
@@ -43,14 +44,15 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
   const dashboardData = await getDashboard({ userId, where });
   const { balance, depositsTotal, investmentsTotal, expensesTotal } = dashboardData;
   const userCanAddTransaction = await canUserAddTransaction();
-
+  const subscriptionPlan = await ClerkPremiumPlan();
+  const hasPremiumPlan = subscriptionPlan === "premium";
   return (
     <div className="space-y-4 p-6">
       <NavBar />
       <div className="flex items-center justify-between">
         <h1 className="pt-4 text-2xl font-bold tracking-tight">Dashboard</h1>
         <div className="flex items-center gap-2">
-          <Button>Relatório IA</Button>
+          <AiReportButton month={selectedMonth} hasPremiumPlan={hasPremiumPlan} />
           <SelectDate month={selectedMonth} />
           <AddTransactionManualButton userCanAddTransaction={userCanAddTransaction} />
         </div>
