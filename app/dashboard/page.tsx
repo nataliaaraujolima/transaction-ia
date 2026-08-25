@@ -47,37 +47,32 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
   const subscriptionPlan = await ClerkPremiumPlan();
   const hasPremiumPlan = subscriptionPlan === "premium";
   return (
-    <div className="space-y-4 p-6">
-      <NavBar />
-      <div className="flex items-center justify-between">
-        <h1 className="pt-4 text-2xl font-bold tracking-tight">Dashboard</h1>
-        <div className="flex items-center gap-2">
-          <AiReportButton month={selectedMonth} hasPremiumPlan={hasPremiumPlan} />
-          <SelectDate month={selectedMonth} />
-          <AddTransactionManualButton userCanAddTransaction={userCanAddTransaction} />
+    <div className="h-full overflow-y-auto p-6">
+      <div className="flex flex-col gap-6">
+        <NavBar />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <div className="flex items-center gap-2">
+            <AiReportButton month={selectedMonth} hasPremiumPlan={hasPremiumPlan} />
+            <SelectDate month={selectedMonth} />
+            <AddTransactionManualButton userCanAddTransaction={userCanAddTransaction} />
+          </div>
         </div>
-      </div>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr,1fr]">
-        <div className="flex flex-col gap-6">
-          <TransactionSummary
-            balance={balance}
+        <TransactionSummary
+          balance={balance}
+          depositsTotal={depositsTotal}
+          investmentsTotal={investmentsTotal}
+          expensesTotal={expensesTotal}
+        />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <TransactionChart
+            typesPercentage={dashboardData.typesPercentage}
             depositsTotal={depositsTotal}
             investmentsTotal={investmentsTotal}
             expensesTotal={expensesTotal}
           />
-
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <TransactionChart
-              typesPercentage={dashboardData.typesPercentage}
-              depositsTotal={depositsTotal}
-              investmentsTotal={investmentsTotal}
-              expensesTotal={expensesTotal}
-            />
-
-            <ChartCategory expensesPerCategory={dashboardData.totalExpensePerCategory} />
-          </div>
+          <ChartCategory expensesPerCategory={dashboardData.totalExpensePerCategory} />
         </div>
-
         <CardTransactions lastTransactions={dashboardData.lastTransactions} />
       </div>
     </div>

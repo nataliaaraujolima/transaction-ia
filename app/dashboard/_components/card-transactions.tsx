@@ -8,7 +8,7 @@ import { TRANSACTION_PAYMENT_METHOD_ICONS } from "../../transaction/_constants/t
 import type { SerializedTransaction } from "../_types/dashboard";
 
 const overlayScroll =
-  "max-h-[36rem] overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgb(255_255_255_/_0.35)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30";
+  "max-h-80 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgb(255_255_255_/_0.35)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30";
 
 interface CardTransactionsProps {
   lastTransactions: SerializedTransaction[];
@@ -39,7 +39,7 @@ export function CardTransactions({ lastTransactions }: CardTransactionsProps) {
       <CardHeader className="flex shrink-0 flex-row items-center justify-between">
         <CardTitle className="text-lg font-bold lg:text-2xl">Últimas Transações</CardTitle>
 
-        <Link href="/transaction" className="hidden lg:block">
+        <Link href="/transaction">
           <Button variant="outline" className="rounded-full font-bold">
             Ver mais
           </Button>
