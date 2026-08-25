@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TransactionCategory, TransactionPaymentMethod, TransactionType } from "@prisma/client";
+import { useEffect, useRef } from "react";
 import { Controller, Form, useForm } from "react-hook-form";
 import { z } from "zod";
 import { MoneyInput } from "../../shared/_components/common/money-input";
@@ -49,10 +50,21 @@ const formSchema = z.object({
 
 export type FormSchema = z.infer<typeof formSchema>;
 
+const DEFAULT_FORM_VALUES: FormSchema = {
+  amount: 0,
+  category: TransactionCategory.OTHER,
+  date: new Date(),
+  name: "",
+  paymentMethod: TransactionPaymentMethod.CASH,
+  type: TransactionType.EXPENSE,
+};
+
 interface UpsertTransactionProps {
+  isOpen: boolean;
   defaultValues?: Partial<FormSchema>;
   transactionId?: string;
   onSuccess: () => void;
+  onLoadingChange?: (loading: boolean) => void;
 }
 
 function formatDateInput(date: Date) {
@@ -62,26 +74,43 @@ function formatDateInput(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-const UpsertTransaction = ({ defaultValues, transactionId, onSuccess }: UpsertTransactionProps) => {
-  const { control } = useForm<FormSchema>({
+const UpsertTransaction = ({
+  isOpen,
+  defaultValues,
+  transactionId,
+  onSuccess,
+  onLoadingChange,
+}: UpsertTransactionProps) => {
+  const { control, reset } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: 0,
-      category: TransactionCategory.OTHER,
-      date: new Date(),
-      name: "",
-      paymentMethod: TransactionPaymentMethod.CASH,
-      type: TransactionType.EXPENSE,
+      ...DEFAULT_FORM_VALUES,
       ...defaultValues,
     },
   });
 
+  const wasOpenRef = useRef(false);
+
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      reset({
+        ...DEFAULT_FORM_VALUES,
+        ...defaultValues,
+      });
+    }
+
+    wasOpenRef.current = isOpen;
+  }, [defaultValues, isOpen, reset]);
+
   const onSubmit = async (data: FormSchema) => {
     try {
+      onLoadingChange?.(true);
       await upsertTransaction({ ...data, id: transactionId });
       onSuccess();
     } catch (error) {
       console.error(error);
+    } finally {
+      onLoadingChange?.(false);
     }
   };
 

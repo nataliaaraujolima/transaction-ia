@@ -1,5 +1,7 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "../../shared/_components/ui/button";
 import {
   Dialog,
@@ -26,6 +28,7 @@ export function TransactionDialogWrapper({
   transactionId,
 }: TransactionDialogWrapperProps) {
   const isUpdate = Boolean(transactionId);
+  const [isLoading, setIsLoading] = useState(false);
 
   function handleCloseModal() {
     onOpenChange(false);
@@ -38,16 +41,19 @@ export function TransactionDialogWrapper({
           <DialogTitle>{isUpdate ? "Atualizar" : "Criar"} transação</DialogTitle>
           <DialogDescription>Insira as informações abaixo</DialogDescription>
         </DialogHeader>
-        {isOpen && (
-          <UpsertTransaction
-            defaultValues={defaultValues}
-            transactionId={transactionId}
-            onSuccess={handleCloseModal}
-          />
-        )}
+        <UpsertTransaction
+          isOpen={isOpen}
+          onLoadingChange={setIsLoading}
+          defaultValues={defaultValues}
+          transactionId={transactionId}
+          onSuccess={handleCloseModal}
+        />
         <DialogFooter>
-          <DialogClose render={<Button type="button" variant="outline" />}>Cancelar</DialogClose>
+          <DialogClose render={<Button disabled={isLoading} type="button" variant="outline" />}>
+            Cancelar
+          </DialogClose>
           <Button type="submit" form="transaction-form">
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isUpdate ? "Atualizar" : "Adicionar"}
           </Button>
         </DialogFooter>
