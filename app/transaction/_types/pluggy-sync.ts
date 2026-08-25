@@ -14,6 +14,11 @@ export interface SyncedPluggyAccount {
   currencyCode: string;
 }
 
+export interface PluggyConnectTokenResult {
+  accessToken: string | null;
+  errorMessage: string | null;
+}
+
 export interface SyncPluggyItemResult {
   accountsCount: number;
   transactionsSynced: number;

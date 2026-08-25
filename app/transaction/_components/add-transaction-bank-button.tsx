@@ -1,7 +1,7 @@
 "use client";
 
 import { Cable } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, use, useState } from "react";
 import { PluggyConnect } from "react-pluggy-connect";
 import { cn } from "@/app/_lib/utils";
 import { getFeatureFlag } from "@/app/shared/_components/_costants/feature-fleg";
@@ -13,33 +13,36 @@ import {
   TooltipTrigger,
 } from "../../shared/_components/ui/tooltip";
 import { syncPluggyItem } from "../_actions/sync-pluggy-item";
-import type { SyncedPluggyAccount } from "../_types/pluggy-sync";
+import type { PluggyConnectTokenResult, SyncedPluggyAccount } from "../_types/pluggy-sync";
+
+interface AddTransactionBankButtonProps {
+  userCanAddTransaction: boolean;
+  connectTokenPromise: Promise<PluggyConnectTokenResult>;
+}
 
 export default function AddTransactionBankButton({
   userCanAddTransaction,
-}: {
-  userCanAddTransaction: boolean;
-}) {
-  const [connectToken, setConnectToken] = useState<string | null>(null);
+  connectTokenPromise,
+}: AddTransactionBankButtonProps) {
+  return (
+    <Suspense fallback={<ConnectBankAccountButton isMuted isDisabled isSyncing={false} />}>
+      <BankAccountConnection
+        userCanAddTransaction={userCanAddTransaction}
+        connectTokenPromise={connectTokenPromise}
+      />
+    </Suspense>
+  );
+}
+
+function BankAccountConnection({
+  userCanAddTransaction,
+  connectTokenPromise,
+}: AddTransactionBankButtonProps) {
+  const { accessToken, errorMessage } = use(connectTokenPromise);
   const [isOpen, setIsOpen] = useState(false);
   const [accounts, setAccounts] = useState<SyncedPluggyAccount[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/create-pluggy-token", { method: "POST" })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "Erro ao gerar token");
-        }
-        setConnectToken(data.accessToken);
-      })
-      .catch((err) => {
-        console.error("Erro ao buscar connect token:", err);
-        setError("Não foi possível gerar o token de conexão.");
-      });
-  }, []);
 
   const syncItem = async (syncedItemId: string) => {
     setIsSyncing(true);
@@ -62,31 +65,29 @@ export default function AddTransactionBankButton({
     await syncItem(nextItemId);
   };
 
-  const isDisabled = !connectToken || isSyncing || Boolean(getFeatureFlag(1)?.enabled);
+  if (!accessToken) {
+    return (
+      <>
+        <ConnectBankAccountButton isMuted isDisabled isSyncing={false} />
+        {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
+      </>
+    );
+  }
+
+  const isDisabled = isSyncing || Boolean(getFeatureFlag(1)?.enabled);
 
   return (
     <>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger delay={200} render={<span className="inline-flex" />}>
-            <Button
-              onClick={() => setIsOpen(true)}
-              disabled={isDisabled || userCanAddTransaction}
-              className={cn(isDisabled && "text-muted-foreground bg-muted cursor-not-allowed")}
-            >
-              {isSyncing ? "Conectando a conta bancária..." : "Conectar Conta Bancária"}
-              <Cable />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="top">
-            Funcionalidade em desenvolvimento, favor aguarde.
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <ConnectBankAccountButton
+        isMuted={isDisabled}
+        isDisabled={isDisabled || userCanAddTransaction}
+        isSyncing={isSyncing}
+        onConnectBankAccount={() => setIsOpen(true)}
+      />
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {isOpen && connectToken && getFeatureFlag(1)?.enabled && (
+      {isOpen && getFeatureFlag(1)?.enabled && (
         <PluggyConnect
-          connectToken={connectToken}
+          connectToken={accessToken}
           onSuccess={handleSuccess}
           onError={(err) => {
             console.error(err);
@@ -96,5 +97,36 @@ export default function AddTransactionBankButton({
         />
       )}
     </>
+  );
+}
+
+function ConnectBankAccountButton({
+  isMuted,
+  isDisabled,
+  isSyncing,
+  onConnectBankAccount,
+}: {
+  isMuted: boolean;
+  isDisabled: boolean;
+  isSyncing: boolean;
+  onConnectBankAccount?: () => void;
+}) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger delay={200} render={<span className="inline-flex" />}>
+          <Button
+            onClick={onConnectBankAccount}
+            className={cn(isMuted && "text-muted-foreground bg-muted cursor-not-allowed")}
+          >
+            {isSyncing ? "Conectando a conta bancária..." : "Conectar Conta Bancária"}
+            <Cable />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="top">
+          Funcionalidade em desenvolvimento, favor aguarde.
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

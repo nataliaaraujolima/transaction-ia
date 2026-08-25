@@ -6,6 +6,7 @@ import { canUserAddTransaction } from "../subscription/_helpers/can-user-add-tra
 import AddTransactionBankButton from "./_components/add-transaction-bank-button";
 import AddTransactionManualButton from "./_components/add-transaction-manual-button";
 import { TransactionTable } from "./_components/transaction-table";
+import { createPluggyConnectToken } from "./_lib/create-pluggy-connect-token";
 
 export const Transaction = async () => {
   const { userId } = await auth();
@@ -25,6 +26,7 @@ export const Transaction = async () => {
   }));
 
   const userCanAddTransaction = await canUserAddTransaction();
+  const connectTokenPromise = createPluggyConnectToken();
 
   return (
     <div className="space-y-4 overflow-hidden p-6">
@@ -32,7 +34,10 @@ export const Transaction = async () => {
       <h1 className="pt-4 text-2xl font-bold tracking-tight">Transações</h1>
       <div className="flex shrink-0 gap-4">
         <AddTransactionManualButton userCanAddTransaction={userCanAddTransaction} />
-        <AddTransactionBankButton userCanAddTransaction={userCanAddTransaction} />
+        <AddTransactionBankButton
+          userCanAddTransaction={userCanAddTransaction}
+          connectTokenPromise={connectTokenPromise}
+        />
       </div>
       <TransactionTable transactions={transactions} />
     </div>
