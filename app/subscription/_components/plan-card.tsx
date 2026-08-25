@@ -29,21 +29,18 @@ type PlanFeature = {
 };
 
 type PlanConfig = {
-  name: string;
-  price: number;
+  name?: string;
+  price?: number;
   badge?: string;
-  cta: string;
-  ctaButtonVariant: "default" | "outline";
-  features: PlanFeature[];
+  cta?: string;
+  ctaButtonVariant?: "default" | "outline";
+  features?: PlanFeature[];
 };
 
 const PLAN_CONFIG = {
   basic: {
     name: "Plano Básico",
     price: 0,
-    badge: undefined,
-    cta: "Fazer upgrade",
-    ctaButtonVariant: "outline",
     features: [
       { label: `Apenas ${BASIC_MONTHLY_TRANSACTION_LIMIT} transações por mês`, included: true },
       { label: "Relatórios de IA", included: false },
@@ -65,11 +62,11 @@ const PLAN_CONFIG = {
 
 function getPlanFeatures(
   variant: PlanVariant,
-  currentMonthTransactionLimit?: boolean
+  currentMonthTransactions?: number
 ): PlanFeature[] {
   const features = PLAN_CONFIG[variant].features;
 
-  if (variant !== "basic" || currentMonthTransactionLimit == null) {
+  if (variant !== "basic" || currentMonthTransactions == null) {
     return features;
   }
 
@@ -77,7 +74,7 @@ function getPlanFeatures(
     index === 0
       ? {
           ...feature,
-          hint: `${currentMonthTransactionLimit}/${BASIC_MONTHLY_TRANSACTION_LIMIT}`,
+          hint: `${currentMonthTransactions}/${BASIC_MONTHLY_TRANSACTION_LIMIT}`,
         }
       : feature
   );
@@ -88,10 +85,14 @@ const CTA_CLASS_NAME = "w-full rounded-full font-bold";
 interface PlanCardCtaProps {
   hasPremiumPlan: boolean;
   plan: PlanConfig;
+  variant: PlanVariant;
   onClick?: () => void | Promise<void>;
 }
 
-function PlanButtonCta({ hasPremiumPlan, plan, onClick }: PlanCardCtaProps) {
+function PlanButtonCta({ hasPremiumPlan, plan, variant, onClick }: PlanCardCtaProps) {
+  if (variant === "basic") {
+    return null;
+  }
   async function handleManageSubscriptionClick() {
     const portal = await createStripePortalSession();
 
@@ -121,7 +122,7 @@ interface PlanCardProps extends VariantProps<typeof planCardVariants> {
   variant: PlanVariant;
   className?: string;
   onClick?: () => void | Promise<void>;
-  userCanAddTransaction?: boolean;
+  currentMonthTransactions?: number;
   hasPremiumPlan: boolean;
 }
 
@@ -129,12 +130,12 @@ export function PlanCard({
   variant,
   className,
   onClick,
-  userCanAddTransaction,
+  currentMonthTransactions,
   hasPremiumPlan,
 }: PlanCardProps) {
   const plan = PLAN_CONFIG[variant];
-  const features = getPlanFeatures(variant, userCanAddTransaction);
-  const badge = hasPremiumPlan && variant === "pro" ? "Plano ativo" : plan.badge;
+  const features = getPlanFeatures(variant, currentMonthTransactions);
+  const badge = hasPremiumPlan && variant === "pro" ? "Plano ativo" : undefined;
 
   return (
     <Card className={cn(planCardVariants({ variant }), className)}>
@@ -168,6 +169,7 @@ export function PlanCard({
         ))}
 
         <PlanButtonCta
+          variant={variant}
           hasPremiumPlan={hasPremiumPlan && variant === "pro"}
           onClick={onClick}
           plan={plan}
