@@ -17,6 +17,12 @@ import {
   DialogTrigger,
 } from "@/app/shared/_components/ui/dialog";
 import { ScrollArea } from "@/app/shared/_components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/shared/_components/ui/tooltip";
 
 interface AiReportButtonProps {
   hasPremiumPlan: boolean;
@@ -47,10 +53,20 @@ const AiReportButton = ({ month, hasPremiumPlan }: AiReportButtonProps) => {
       }}
     >
       <DialogTrigger>
-        <Button variant="ghost">
-          Relatório IA
-          <BotIcon />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button variant="secondary">
+                Relatório IA
+                <BotIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              A funcionalidade está em desenvolvimento, por enquanto é apenas um relatório de
+              exemplo.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </DialogTrigger>
       <DialogContent className="max-w-[600px]">
         {hasPremiumPlan ? (

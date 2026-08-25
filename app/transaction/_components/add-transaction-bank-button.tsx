@@ -78,7 +78,9 @@ export default function AddTransactionBankButton({
               <Cable />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="top">Feature em desenvolvimento, favor aguarde.</TooltipContent>
+          <TooltipContent side="top">
+            Funcionalidade em desenvolvimento, favor aguarde.
+          </TooltipContent>
         </Tooltip>
       </TooltipProvider>
       {error && <p className="text-sm text-red-500">{error}</p>}
