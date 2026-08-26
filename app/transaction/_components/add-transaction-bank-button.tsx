@@ -65,6 +65,8 @@ function BankAccountConnection({
     await syncItem(nextItemId);
   };
 
+  const featureFlagActive = Boolean(getFeatureFlag(1)?.enabled);
+
   if (!accessToken) {
     return (
       <>
@@ -74,18 +76,25 @@ function BankAccountConnection({
     );
   }
 
-  const isDisabled = isSyncing || Boolean(getFeatureFlag(1)?.enabled);
+  const isDisabled = isSyncing || !featureFlagActive || !userCanAddTransaction;
 
   return (
     <>
       <ConnectBankAccountButton
         isMuted={isDisabled}
-        isDisabled={isDisabled || userCanAddTransaction}
+        isDisabled={isDisabled}
         isSyncing={isSyncing}
+        tooltipMessage={
+          userCanAddTransaction === false
+            ? "Você atingiu o limite de transações para o mês, atualize seu plano para continuar."
+            : !featureFlagActive
+              ? "Funcionalidade em desenvolvimento, favor aguarde."
+              : undefined
+        }
         onConnectBankAccount={() => setIsOpen(true)}
       />
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {isOpen && getFeatureFlag(1)?.enabled && (
+      {isOpen && featureFlagActive && (
         <PluggyConnect
           connectToken={accessToken}
           onSuccess={handleSuccess}
@@ -104,28 +113,35 @@ function ConnectBankAccountButton({
   isMuted,
   isDisabled,
   isSyncing,
+  tooltipMessage,
   onConnectBankAccount,
 }: {
   isMuted: boolean;
   isDisabled: boolean;
   isSyncing: boolean;
+  tooltipMessage?: string;
   onConnectBankAccount?: () => void;
 }) {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger delay={200} render={<span className="inline-flex" />}>
-          <Button
-            onClick={onConnectBankAccount}
-            className={cn(isMuted && "text-muted-foreground bg-muted cursor-not-allowed")}
-          >
-            {isSyncing ? "Conectando a conta bancária..." : "Conectar Conta Bancária"}
-            <Cable />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="top">
-          Funcionalidade em desenvolvimento, favor aguarde.
-        </TooltipContent>
+        <TooltipTrigger
+          delay={200}
+          render={
+            <span className="inline-flex">
+              <Button
+                disabled={isDisabled}
+                onClick={onConnectBankAccount}
+                className={cn(isMuted && "text-muted-foreground bg-muted cursor-not-allowed")}
+              >
+                {isSyncing ? "Conectando a conta bancária..." : "Conectar Conta Bancária"}
+                <Cable />
+              </Button>
+            </span>
+          }
+        />
+
+        {tooltipMessage && <TooltipContent side="top">{tooltipMessage}</TooltipContent>}
       </Tooltip>
     </TooltipProvider>
   );
