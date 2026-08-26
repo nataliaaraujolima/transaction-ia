@@ -68,7 +68,13 @@ export const transactionColumns: ColumnDef<SerializedTransaction>[] = [
   },
   {
     id: "actions",
-    header: "Ações",
+    header: ({ table }) => {
+      const hasManualTransactions = table
+        .getRowModel()
+        .rows.some((row) => row.original.source === "MANUAL");
+
+      return hasManualTransactions ? "Ações" : null;
+    },
     cell: ({ row: { original: transaction } }) =>
       transaction.source === "MANUAL" ? (
         <div className="flex items-center gap-1">

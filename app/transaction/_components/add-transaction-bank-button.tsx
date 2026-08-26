@@ -1,10 +1,9 @@
 "use client";
 
-import { Cable } from "lucide-react";
+import { Cable, Loader2 } from "lucide-react";
 import { Suspense, use, useState } from "react";
 import { PluggyConnect } from "react-pluggy-connect";
 import { cn } from "@/app/_lib/utils";
-import { getFeatureFlag } from "@/app/shared/_components/_costants/feature-fleg";
 import { Button } from "../../shared/_components/ui/button";
 import {
   Tooltip,
@@ -13,7 +12,7 @@ import {
   TooltipTrigger,
 } from "../../shared/_components/ui/tooltip";
 import { syncPluggyItem } from "../_actions/sync-pluggy-item";
-import type { PluggyConnectTokenResult, SyncedPluggyAccount } from "../_types/pluggy-sync";
+import type { PluggyConnectTokenResult } from "../_types/pluggy-sync";
 
 interface AddTransactionBankButtonProps {
   userCanAddTransaction: boolean;
@@ -40,7 +39,6 @@ function BankAccountConnection({
 }: AddTransactionBankButtonProps) {
   const { accessToken, errorMessage } = use(connectTokenPromise);
   const [isOpen, setIsOpen] = useState(false);
-  const [accounts, setAccounts] = useState<SyncedPluggyAccount[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,7 +48,7 @@ function BankAccountConnection({
 
     try {
       const result = await syncPluggyItem({ itemId: syncedItemId });
-      setAccounts(result.accounts);
+      return result.accounts;
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Erro ao sincronizar");
@@ -65,8 +63,6 @@ function BankAccountConnection({
     await syncItem(nextItemId);
   };
 
-  const featureFlagActive = Boolean(getFeatureFlag(1)?.enabled);
-
   if (!accessToken) {
     return (
       <>
@@ -75,26 +71,18 @@ function BankAccountConnection({
       </>
     );
   }
-
-  const isDisabled = isSyncing || !featureFlagActive || !userCanAddTransaction;
-
+  const isDisabled = isSyncing || !userCanAddTransaction;
   return (
     <>
       <ConnectBankAccountButton
         isMuted={isDisabled}
         isDisabled={isDisabled}
         isSyncing={isSyncing}
-        tooltipMessage={
-          userCanAddTransaction === false
-            ? "Você atingiu o limite de transações para o mês, atualize seu plano para continuar."
-            : !featureFlagActive
-              ? "Funcionalidade em desenvolvimento, favor aguarde."
-              : undefined
-        }
+        tooltipMessage="A integração bancária está temporariamente restrita à conta de testes principal."
         onConnectBankAccount={() => setIsOpen(true)}
       />
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {isOpen && featureFlagActive && (
+      {isOpen && (
         <PluggyConnect
           connectToken={accessToken}
           onSuccess={handleSuccess}
@@ -134,14 +122,16 @@ function ConnectBankAccountButton({
                 onClick={onConnectBankAccount}
                 className={cn(isMuted && "text-muted-foreground bg-muted cursor-not-allowed")}
               >
-                {isSyncing ? "Conectando a conta bancária..." : "Conectar Conta Bancária"}
+                {isSyncing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSyncing ? "Conectando a conta bancária" : "Conectar conta Bancária"}
+
                 <Cable />
               </Button>
             </span>
           }
         />
 
-        {tooltipMessage && <TooltipContent side="top">{tooltipMessage}</TooltipContent>}
+        {tooltipMessage && <TooltipContent side="right">{tooltipMessage}</TooltipContent>}
       </Tooltip>
     </TooltipProvider>
   );
