@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TransactionCategory, TransactionPaymentMethod, TransactionType } from "@prisma/client";
 import { useEffect, useRef } from "react";
 import { Controller, Form, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { MoneyInput } from "../../shared/_components/common/money-input";
 
@@ -59,6 +60,25 @@ const DEFAULT_FORM_VALUES: FormSchema = {
   type: TransactionType.EXPENSE,
 };
 
+const FIELD_LABELS: Record<keyof FormSchema, string> = {
+  amount: "valor",
+  category: "categoria",
+  date: "data",
+  name: "título",
+  paymentMethod: "método de pagamento",
+  type: "tipo",
+};
+
+function listChangedFields(dirtyFields: Partial<Record<keyof FormSchema, unknown>>) {
+  const labels = (Object.keys(dirtyFields) as (keyof FormSchema)[])
+    .filter((field) => dirtyFields[field])
+    .map((field) => FIELD_LABELS[field]);
+
+  if (labels.length <= 1) return labels.join("");
+
+  return `${labels.slice(0, -1).join(", ")} e ${labels.at(-1)}`;
+}
+
 interface UpsertTransactionProps {
   isOpen: boolean;
   defaultValues?: Partial<FormSchema>;
@@ -81,7 +101,11 @@ const UpsertTransaction = ({
   onSuccess,
   onLoadingChange,
 }: UpsertTransactionProps) => {
-  const { control, reset } = useForm<FormSchema>({
+  const {
+    control,
+    reset,
+    formState: { dirtyFields },
+  } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       ...DEFAULT_FORM_VALUES,
@@ -103,9 +127,31 @@ const UpsertTransaction = ({
   }, [defaultValues, isOpen, reset]);
 
   const onSubmit = async (data: FormSchema) => {
+    const isUpdate = Boolean(transactionId);
+    const changedFields = listChangedFields(dirtyFields);
+
+    if (isUpdate && !changedFields) {
+      toast.info("Nenhuma alteração para salvar.");
+      onSuccess();
+      return;
+    }
+
     try {
       onLoadingChange?.(true);
-      await upsertTransaction({ ...data, id: transactionId });
+
+      const request = upsertTransaction({ ...data, id: transactionId });
+
+      toast.promise(request, {
+        loading: isUpdate ? `Alterando ${changedFields}...` : "Criando transação...",
+        success: isUpdate
+          ? { message: "Transação atualizada!", description: `Alteramos ${changedFields}.` }
+          : "Transação criada!",
+        error: isUpdate
+          ? "Não foi possível atualizar a transação."
+          : "Não foi possível criar a transação.",
+      });
+
+      await request;
       onSuccess();
     } catch (error) {
       console.error(error);

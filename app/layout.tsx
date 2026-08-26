@@ -5,6 +5,7 @@ import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ptBR } from "@clerk/localizations";
 import type { ReactNode } from "react";
+import { Toaster } from "./shared/_components/ui/sonner";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
@@ -34,6 +35,7 @@ export default function RootLayout({
           }}
         >
           <div className="flex h-full flex-col overflow-hidden">{children}</div>
+          <Toaster />
         </ClerkProvider>
       </body>
     </html>
