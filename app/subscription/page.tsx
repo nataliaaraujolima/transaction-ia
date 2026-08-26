@@ -2,10 +2,10 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 import NavBar from "../shared/_components/common/nav-bar";
+import { getCurrentMonthTransactions } from "../transaction/_db/get-current-moth-transactions";
 import { ClerkPremiumPlan } from "../transaction/clerk-premium-plan";
 import { AcquirePlanButton } from "./_components/acquire-plan-button";
 import { PlanCard } from "./_components/plan-card";
-import { getCurrentMonthTransactions } from "../transaction/_db/get-current-moth-transactions";
 
 export default async function Subscription() {
   const { userId } = await auth();

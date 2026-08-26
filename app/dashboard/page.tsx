@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { isMatch } from "date-fns";
 import { redirect } from "next/navigation";
 import NavBar from "../shared/_components/common/nav-bar";
+import { Badge } from "../shared/_components/ui/badge";
 import { canUserAddTransaction } from "../subscription/_helpers/can-user-add-transaciton";
 import AddTransactionManualButton from "../transaction/_components/add-transaction-manual-button";
 import { ClerkPremiumPlan } from "../transaction/clerk-premium-plan";
@@ -64,15 +65,22 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
           investmentsTotal={investmentsTotal}
           expensesTotal={expensesTotal}
         />
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <TransactionChart
-            typesPercentage={dashboardData.typesPercentage}
-            depositsTotal={depositsTotal}
-            investmentsTotal={investmentsTotal}
-            expensesTotal={expensesTotal}
-          />
-          <ChartCategory expensesPerCategory={dashboardData.totalExpensePerCategory} />
-        </div>
+        {dashboardData.lastTransactions.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <TransactionChart
+              typesPercentage={dashboardData.typesPercentage}
+              depositsTotal={depositsTotal}
+              investmentsTotal={investmentsTotal}
+              expensesTotal={expensesTotal}
+            />
+            <ChartCategory expensesPerCategory={dashboardData.totalExpensePerCategory} />
+          </div>
+        ) : (
+          <Badge variant="outline" className="w-full">
+            Faça sua primeira transação para ver o dashboard com percentual de receita, despesas e
+            investimentos.
+          </Badge>
+        )}
         <CardTransactions lastTransactions={dashboardData.lastTransactions} />
       </div>
     </div>

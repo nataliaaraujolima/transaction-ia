@@ -39,11 +39,13 @@ export function CardTransactions({ lastTransactions }: CardTransactionsProps) {
       <CardHeader className="flex shrink-0 flex-row items-center justify-between">
         <CardTitle className="text-lg font-bold lg:text-2xl">Últimas Transações</CardTitle>
 
-        <Link href="/transaction">
-          <Button variant="outline" className="rounded-full font-bold">
-            Ver mais
-          </Button>
-        </Link>
+        {lastTransactions.length > 0 && (
+          <Link href="/transaction">
+            <Button variant="outline" className="rounded-full font-bold">
+              Ver mais
+            </Button>
+          </Link>
+        )}
       </CardHeader>
 
       <CardContent className={`space-y-6 pt-4 ${overlayScroll}`}>
@@ -74,7 +76,7 @@ export function CardTransactions({ lastTransactions }: CardTransactionsProps) {
         ))}
 
         {lastTransactions.length === 0 && (
-          <p className="text-sm text-muted-foreground">Nenhum resultado encontrado...</p>
+          <p className="text-sm text-muted-foreground">Faça sua primeira transação.</p>
         )}
       </CardContent>
     </div>

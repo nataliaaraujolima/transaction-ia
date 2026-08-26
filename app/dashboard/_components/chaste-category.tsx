@@ -30,7 +30,9 @@ export function ChartCategory({ expensesPerCategory }: ChartCategoryProps) {
         ))}
 
         {expensesPerCategory.length === 0 && (
-          <p className="text-sm text-muted-foreground">Nenhum resultado encontrado...</p>
+          <p className="text-sm text-muted-foreground">
+            Faça sua primeira transação para ver os gastos por categoria.
+          </p>
         )}
       </CardContent>
     </div>
