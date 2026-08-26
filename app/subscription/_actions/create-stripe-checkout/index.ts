@@ -29,14 +29,24 @@ export const createStripeCheckout = async () => {
     apiVersion: STRIPE_API_VERSION,
   });
 
-  if (typeof existingCustomerId === "string") {
-    await stripe.customers.update(existingCustomerId, {
-      metadata: { [CLERK_USER_ID_METADATA_KEY]: userId },
-    });
+  let stripeCustomerId = typeof existingCustomerId === "string" ? existingCustomerId : undefined;
+
+  if (stripeCustomerId) {
+    try {
+      await stripe.customers.update(stripeCustomerId, {
+        metadata: { [CLERK_USER_ID_METADATA_KEY]: userId },
+      });
+    } catch (error: any) {
+      if (error?.code === "resource_missing") {
+        stripeCustomerId = undefined;
+      } else {
+        throw error;
+      }
+    }
   }
 
   const session = await stripe.checkout.sessions.create({
-    ...(typeof existingCustomerId === "string" ? { customer: existingCustomerId } : {}),
+    ...(stripeCustomerId ? { customer: stripeCustomerId } : {}),
 
     payment_method_types: ["card"],
     mode: "subscription",
