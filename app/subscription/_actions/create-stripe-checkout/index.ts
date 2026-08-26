@@ -50,8 +50,15 @@ export const createStripeCheckout = async () => {
 
     payment_method_types: ["card"],
     mode: "subscription",
-    success_url: "http://localhost:3000/subscription",
-    cancel_url: "http://localhost:3000/subscription",
+    ...(process.env.NODE_ENV === "development"
+      ? {
+          success_url: process.env.APP_URL_LOCALHOST,
+          cancel_url: process.env.APP_URL_LOCALHOST,
+        }
+      : {
+          success_url: process.env.APP_URL_PRODUCTION,
+          cancel_url: process.env.APP_URL_PRODUCTION,
+        }),
     client_reference_id: userId,
     metadata: {
       [CLERK_USER_ID_METADATA_KEY]: userId,
