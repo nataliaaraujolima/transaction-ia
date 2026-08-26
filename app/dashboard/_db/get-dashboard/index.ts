@@ -16,7 +16,9 @@ export async function getDashboard({ userId, where }: IGetDashboardProps): Promi
   const filters = {
     ...where,
     userId,
-    source: TransactionSource.MANUAL,
+    source: {
+      in: [TransactionSource.MANUAL, TransactionSource.BANK],
+    },
   };
 
   const depositsTotal = Number(
