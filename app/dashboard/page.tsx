@@ -2,7 +2,9 @@ import { auth } from "@clerk/nextjs/server";
 import { isMatch } from "date-fns";
 import { redirect } from "next/navigation";
 import NavBar from "../shared/_components/common/nav-bar";
+import { SelectTransaction } from "../shared/_components/common/select-transaction";
 import { Badge } from "../shared/_components/ui/badge";
+
 import { canUserAddTransaction } from "../subscription/_helpers/can-user-add-transaciton";
 import AddTransactionManualButton from "../transaction/_components/add-transaction-manual-button";
 import { ClerkPremiumPlan } from "../transaction/clerk-premium-plan";
@@ -56,6 +58,9 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
           <div className="flex items-center gap-2">
             <AiReportButton month={selectedMonth} hasPremiumPlan={hasPremiumPlan} />
             <SelectDate month={selectedMonth} />
+
+            <SelectTransaction />
+
             <AddTransactionManualButton userCanAddTransaction={userCanAddTransaction} />
           </div>
         </div>

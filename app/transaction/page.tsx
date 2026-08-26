@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "../_lib/prisma";
 import NavBar from "../shared/_components/common/nav-bar";
+import { SelectTransaction } from "../shared/_components/common/select-transaction";
 import { canUserAddTransaction } from "../subscription/_helpers/can-user-add-transaciton";
 import AddTransactionBankButton from "./_components/add-transaction-bank-button";
 import AddTransactionManualButton from "./_components/add-transaction-manual-button";
@@ -38,6 +39,7 @@ export const Transaction = async () => {
           userCanAddTransaction={userCanAddTransaction}
           connectTokenPromise={connectTokenPromise}
         />
+        <SelectTransaction />
       </div>
       <TransactionTable transactions={transactions} />
     </div>
