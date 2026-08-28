@@ -14,6 +14,7 @@ import { ChartCategory } from "./_components/chaste-category";
 import { SelectDate } from "./_components/select-date";
 import { TransactionSummary } from "./_components/Transaction-summary";
 import { TransactionChart } from "./_components/transaction-chart";
+import { WelcomeToast } from "./_components/welcome-tost";
 import { getDashboard } from "./_db/get-dashboard";
 
 interface DashboardProps {
@@ -51,6 +52,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
   const hasPremiumPlan = subscriptionPlan === "premium";
   return (
     <div className="h-full overflow-y-auto p-6">
+      <WelcomeToast />
       <div className="flex flex-col gap-6">
         <NavBar />
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
