@@ -2,6 +2,9 @@
   "name": "finance-ia",
   "version": "0.1.0",
   "private": true,
+  "prisma": {
+    "seed": "tsx prisma/seed/notification_seed.ts"
+  },
   "scripts": {
     "dev": "next dev",
     "postinstall": "prisma generate",
@@ -54,6 +57,7 @@
     "@types/react-dom": "^19",
     "dotenv": "^17.4.2",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5"
   },
   "allowScripts": {
