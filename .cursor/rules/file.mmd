@@ -1,0 +1,56 @@
+sequenceDiagram
+  autonumber
+  participant SST as SST Cron
+  participant CronReq as /api/jobs/evaluate-usage (Route)
+  participant Route as Route Handler
+  participant UseCase as EvaluateUsageAndNotifyUseCase
+  participant Billing as BillingUsageProvider (Stripe+DB)
+  participant DB as Prisma/Postgres
+  participant NotificationRepo as NotificationRepoPrisma
+  participant StateRepo as UserBillingStateRepoPrisma
+  participant Frontend as Browser (User)
+  participant API as /api/notifications (Route)
+  participant UI as NotificationsMenu / SubscriptionBanner
+  participant Checkout as create-stripe-checkout (Server Action)
+  participant Stripe as Stripe (Checkout & Webhooks)
+  participant Webhook as /api/webhooks/stripe/route.ts
+
+  Note over SST,CronReq: Agendador (hourly) dispara job
+  SST->>CronReq: POST /api/jobs/evaluate-usage (X-Infra-Key)
+  CronReq->>Route: validar secret & body
+  Route->>UseCase: instanciar deps (Billing, NotificationRepo, StateRepo) e chamar execute()
+  UseCase->>Billing: getUsageForActiveSubscriptions(batch)
+  Billing->>UseCase: [{userId, subscriptionId, currentUsage, planLimit, periodStart, daysLeft, suggestedPlanId}, ...]
+  loop para cada record (paginated)
+    UseCase->>StateRepo: getByUser(userId)
+    StateRepo-->>UseCase: state
+    UseCase->>UseCase: calcular percentUsed & cycleId
+    alt novo cycle
+      UseCase->>StateRepo: upsertState(userId, cycleId, notified80=false)
+    end
+    alt percentUsed >= 80 && !state.notified80 && !recentNotification(24h)
+      UseCase->>NotificationRepo: create(Notification{...})
+      NotificationRepo-->>DB: INSERT
+      UseCase->>StateRepo: setNotified80(userId, true)  --(atomic ideally)-->
+      UseCase->>Route: emit metrics (notifications_created)
+    else
+      UseCase->>Route: contabilizar skipped
+    end
+  end
+  Route->>SST: return summary {created, skipped, processed}
+  Note over Frontend,API: Periodicamente/ao carregar
+  Frontend->>API: GET /api/notifications (session cookie)
+  API->>NotificationRepo: listByUser(userId)
+  NotificationRepo-->>API: [notifications ordered unread first]
+  API-->>Frontend: JSON notifications
+  Frontend->>UI: render badge, dropdown, banner
+  alt usuário clica "Ver planos"
+    UI->>API: PATCH /api/notifications/:id/read
+    API->>NotificationRepo: markRead(id)
+    UI->>Checkout: chamar create-stripe-checkout(suggestedPlanId) / redirect
+    Checkout->>Stripe: inicia sessão de checkout
+    Stripe->>Frontend: redirect checkout (user completes purchase)
+    Stripe->>Webhook: envia evento de subscription update
+    Webhook->>StateRepo: reset notified80 / mark notifications read for cycle
+    Webhook->>Route: emit metrics (checkout_success_from_notification)
+  end
