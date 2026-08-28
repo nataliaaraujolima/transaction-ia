@@ -8,9 +8,9 @@ import { TRANSACTION_TYPE_LABELS } from "../_constants/transactions";
 const transactionTypeBadgeVariants = cva("border-transparent font-bold hover:bg-muted", {
   variants: {
     type: {
-      DEPOSIT: "bg-muted text-primary",
-      EXPENSE: "bg-red/10 text-red",
-      INVESTMENT: "bg-foreground/10 text-foreground",
+      DEPOSIT: "bg-muted text-primary dark:text-zinc-300",
+      EXPENSE: "bg-red/10 dark:text-zinc-300",
+      INVESTMENT: "bg-foreground/10 dark:text-zinc-300",
     },
   },
   defaultVariants: {
