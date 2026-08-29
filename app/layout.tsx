@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Transaction IA",
   description: "Transaction IA",
   other: {
-    "google-site-verification": "ca-pub-9247492374195257",
+    "google-adsense-account": "ca-pub-9247492374195257",
   },
 };
 
