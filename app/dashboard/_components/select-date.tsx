@@ -24,7 +24,7 @@ export function SelectDate({ month }: SelectDateProps) {
         if (value) push(`/dashboard?month=${value}`);
       }}
     >
-      <SelectTrigger>
+      <SelectTrigger className="w-full sm:w-auto">
         <SelectValue placeholder="Selecione um mês">
           {(value: string | null) =>
             MONTH_OPTIONS.find((option) => option.value === value)?.label ?? "Selecione um mês"

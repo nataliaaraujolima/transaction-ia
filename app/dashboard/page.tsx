@@ -58,12 +58,10 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
         <NavBar />
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
             <AiReportButton month={selectedMonth} hasPremiumPlan={hasPremiumPlan} />
             <SelectDate month={selectedMonth} />
-
             <SelectTransaction />
-
             <AddTransactionManualButton userCanAddTransaction={userCanAddTransaction} />
           </div>
         </div>

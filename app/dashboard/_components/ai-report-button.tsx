@@ -56,7 +56,7 @@ const AiReportButton = ({ month, hasPremiumPlan }: AiReportButtonProps) => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Button variant="secondary">
+              <Button variant="secondary" className="w-full sm:w-auto">
                 Relatório IA
                 <BotIcon />
               </Button>

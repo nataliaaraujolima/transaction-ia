@@ -32,8 +32,12 @@ export default function AddTransactionManualButton({
         <Tooltip>
           <TooltipTrigger
             render={
-              <span className="inline-flex">
-                <Button onClick={handleOpenModal} disabled={userCanAddTransaction === false}>
+              <span className="inline-flex w-full sm:w-auto">
+                <Button
+                  className="w-full sm:w-auto"
+                  onClick={handleOpenModal}
+                  disabled={userCanAddTransaction === false}
+                >
                   Adicionar transação
                   <Repeat />
                 </Button>

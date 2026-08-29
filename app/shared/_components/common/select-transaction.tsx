@@ -19,10 +19,10 @@ export const SelectTransaction = () => {
         <TooltipContent>
           <p>Funcinalidade em desenvolvimento, aguarde.</p>
         </TooltipContent>
-        <TooltipTrigger>
+        <TooltipTrigger className="w-full sm:w-auto">
           <Select disabled>
-            <SelectTrigger className="h-8 text-xs px-2">
-              <SelectValue placeholder="Selecione o tipo de transação" />
+            <SelectTrigger className="h-8 w-full px-2 text-xs sm:w-auto">
+              <SelectValue placeholder="Tipo de transação" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="manual">Manual</SelectItem>
