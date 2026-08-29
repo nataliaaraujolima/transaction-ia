@@ -7,3 +7,4 @@ Tasks para começar (foco schema + actions) task-**001** — Schema Prisma (Noti
 * Índices @@index([userId, read, createdAt]) e @@index([cycleId])
 
 * Seed mínimo (1 notificação unread + 1 billing state)
+

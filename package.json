@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "prisma": {
-    "seed": "tsx prisma/seed/notification_seed.ts"
+    "seed": "tsx prisma/seed/notification_seed.ts && tsx prisma/seed/ads_seed.ts"
   },
   "scripts": {
     "dev": "next dev",
@@ -52,6 +52,7 @@
     "@biomejs/biome": "^2.5.6",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.20",
+    "@types/google-publisher-tag": "^1.20260824.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

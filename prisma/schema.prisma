@@ -42,14 +42,68 @@ model PluggyConnection {
 
   @@index([userId])
 }
+model UserAdState {
+  userId              String    @id
+  adSeen              Boolean   @default(false)
+  adSeenAt            DateTime?
+  adViewsCount        Int       @default(0)
+  adLastViewSessionId String?
+  adLastSlotId        String?
+  adCampaignKv        Json?
+  dismissedUntil      DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model AdImpression {
+  id         String   @id @default(uuid())
+  userId     String
+  slotId     String
+  adUnitId   String?
+  sessionId  String
+  campaignKv Json?
+  source     String   @default("gpt")
+  dedupKey   String   @unique
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, slotId, sessionId])
+}
+
+model AdEventError {
+  id        String   @id @default(uuid())
+  userId    String?
+  slotId    String?
+  code      String
+  message   String
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
 
 model Notification {
-  id        String   @id @default(uuid())
+   id        String   @id @default(uuid())
   userId    String
+  type      NotificationType
+  payload   Json
+  read      Boolean  @default(false)
+  cycleId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  @@index([userId, read, createdAt])
+  @@index([cycleId])
+}
 
-  @@index([userId])
+model UserBillingState {
+  userId     String   @id
+  cycleId    String?
+  notified80 Boolean  @default(false)
+  updatedAt  DateTime @updatedAt
+}
+
+enum NotificationType {
+  THRESHOLD_80
 }
 
 enum TransactionSource {
