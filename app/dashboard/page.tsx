@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { isMatch } from "date-fns";
 import { redirect } from "next/navigation";
+import { AdBannerGate } from "../_ads/_components/ad-banner-gate";
 import NavBar from "../shared/_components/common/nav-bar";
 import { SelectTransaction } from "../shared/_components/common/select-transaction";
 import { Badge } from "../shared/_components/ui/badge";
@@ -66,6 +67,7 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
             <AddTransactionManualButton userCanAddTransaction={userCanAddTransaction} />
           </div>
         </div>
+        <AdBannerGate />
         <TransactionSummary
           balance={balance}
           depositsTotal={depositsTotal}

@@ -14,7 +14,10 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Transaction IA",
-  description: "Transaction IA - Boilerplate",
+  description: "Transaction IA",
+  other: {
+    "google-site-verification": "ca-pub-9247492374195257",
+  },
 };
 
 export default function RootLayout({

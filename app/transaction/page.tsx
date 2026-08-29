@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { AdBannerGate } from "../_ads/_components/ad-banner-gate";
 import { db } from "../_lib/prisma";
 import NavBar from "../shared/_components/common/nav-bar";
 import { SelectTransaction } from "../shared/_components/common/select-transaction";
@@ -33,6 +34,7 @@ export const Transaction = async () => {
     <div className="space-y-4 overflow-hidden p-6">
       <NavBar />
       <h1 className="pt-4 text-2xl font-bold tracking-tight">Transações</h1>
+      <AdBannerGate />
       <div className="flex shrink-0 gap-4">
         <AddTransactionManualButton userCanAddTransaction={userCanAddTransaction} />
         <AddTransactionBankButton
