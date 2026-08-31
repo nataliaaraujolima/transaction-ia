@@ -6,7 +6,7 @@ import {
   CLERK_USER_ID_METADATA_KEY,
 } from "@/app/subscription/_constants/stripe-metadata";
 import { getClerkMetadataString } from "@/app/subscription/_helpers/get-clerk-metadata-string";
-import { planFromStripeStatus } from "@/app/subscription/_helpers/stripe-subscription-status";
+import { planFromStripeSubscription } from "@/app/subscription/_helpers/stripe-subscription-status";
 import { toStripeId } from "@/app/subscription/_helpers/to-stripe-id";
 import { resolveClerkUserFromStripe } from "@/app/subscription/_usecases/resolve-clerk-user-from-stripe";
 
@@ -88,7 +88,7 @@ export async function syncStripeSubscriptionToClerk({
     clerkUser.privateMetadata,
     CLERK_STRIPE_SUBSCRIPTION_ID_METADATA_KEY
   );
-  const subscriptionPlan = planFromStripeStatus(subscription.status);
+  const subscriptionPlan = planFromStripeSubscription(subscription);
 
   if (
     shouldIgnoreOutdatedSubscriptionDowngrade({

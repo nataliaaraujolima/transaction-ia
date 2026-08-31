@@ -10,7 +10,7 @@ import {
   STRIPE_SUBSCRIPTION_LOOKUP_PAGE_SIZE,
 } from "@/app/subscription/_constants/stripe-metadata";
 import { getClerkMetadataString } from "@/app/subscription/_helpers/get-clerk-metadata-string";
-import { isPremiumStripeStatus } from "@/app/subscription/_helpers/stripe-subscription-status";
+import { isPremiumStripeSubscription } from "@/app/subscription/_helpers/stripe-subscription-status";
 
 export const ClerkPremiumPlan = cache(async (): Promise<string> => {
   const { userId } = await auth();
@@ -64,12 +64,12 @@ export const ClerkPremiumPlan = cache(async (): Promise<string> => {
     });
     stripeSubscription =
       customerSubscriptions.data.find((subscription) =>
-        isPremiumStripeStatus(subscription.status)
+        isPremiumStripeSubscription(subscription)
       ) ?? customerSubscriptions.data[0];
   }
 
   const syncedPlan =
-    stripeSubscription && isPremiumStripeStatus(stripeSubscription.status) ? "premium" : "basic";
+    stripeSubscription && isPremiumStripeSubscription(stripeSubscription) ? "premium" : "basic";
 
   if (syncedPlan !== currentPlan) {
     const isPremiumPlan = syncedPlan === "premium";

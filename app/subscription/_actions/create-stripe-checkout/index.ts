@@ -6,6 +6,10 @@ import {
   CLERK_USER_ID_METADATA_KEY,
   STRIPE_API_VERSION,
 } from "@/app/subscription/_constants/stripe-metadata";
+import {
+  getSubscriptionBillingReturnUrl,
+  getSubscriptionUrl,
+} from "@/app/subscription/_helpers/get-app-base-url";
 
 export const createStripeCheckout = async () => {
   const { userId } = await auth();
@@ -22,6 +26,17 @@ export const createStripeCheckout = async () => {
   if (!process.env.STRIPE_SECRET_KEY) {
     return {
       error: "Stripe secret key is not set",
+    };
+  }
+
+  let successUrl: string;
+  let cancelUrl: string;
+  try {
+    successUrl = getSubscriptionBillingReturnUrl();
+    cancelUrl = getSubscriptionUrl();
+  } catch {
+    return {
+      error: "App URL is not set",
     };
   }
 
@@ -50,15 +65,8 @@ export const createStripeCheckout = async () => {
 
     payment_method_types: ["card"],
     mode: "subscription",
-    ...(process.env.NODE_ENV === "development"
-      ? {
-          success_url: process.env.APP_URL_LOCALHOST,
-          cancel_url: process.env.APP_URL_LOCALHOST,
-        }
-      : {
-          success_url: process.env.APP_URL_PRODUCTION,
-          cancel_url: process.env.APP_URL_PRODUCTION,
-        }),
+    success_url: successUrl,
+    cancel_url: cancelUrl,
     client_reference_id: userId,
     metadata: {
       [CLERK_USER_ID_METADATA_KEY]: userId,

@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { STRIPE_API_VERSION } from "@/app/subscription/_constants/stripe-metadata";
+import { revalidateSubscriptionPaths } from "@/app/subscription/_helpers/revalidate-subscription-paths";
 import { toStripeId } from "@/app/subscription/_helpers/to-stripe-id";
 import { syncStripeSubscriptionToClerk } from "@/app/subscription/_usecases/sync-stripe-subscription-to-clerk";
+
+async function syncSubscriptionAndRevalidate(
+  stripe: Stripe,
+  subscription: Stripe.Subscription
+) {
+  await syncStripeSubscriptionToClerk({ stripe, subscription });
+  revalidateSubscriptionPaths();
+}
 
 export async function POST(request: Request) {
   try {
@@ -46,7 +55,7 @@ export async function POST(request: Request) {
         }
 
         const subscriptionFromCheckout = await stripe.subscriptions.retrieve(stripeSubscriptionId);
-        await syncStripeSubscriptionToClerk({ stripe, subscription: subscriptionFromCheckout });
+        await syncSubscriptionAndRevalidate(stripe, subscriptionFromCheckout);
         break;
       }
       case "invoice.paid": {
@@ -59,13 +68,13 @@ export async function POST(request: Request) {
         }
 
         const subscriptionFromInvoice = await stripe.subscriptions.retrieve(stripeSubscriptionId);
-        await syncStripeSubscriptionToClerk({ stripe, subscription: subscriptionFromInvoice });
+        await syncSubscriptionAndRevalidate(stripe, subscriptionFromInvoice);
         break;
       }
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
         const updatedSubscription = stripeEvent.data.object;
-        await syncStripeSubscriptionToClerk({ stripe, subscription: updatedSubscription });
+        await syncSubscriptionAndRevalidate(stripe, updatedSubscription);
         break;
       }
     }

@@ -1,9 +1,20 @@
 const PREMIUM_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due"]);
 
-export function isPremiumStripeStatus(status: string) {
-  return PREMIUM_SUBSCRIPTION_STATUSES.has(status);
+type StripeSubscriptionAccess = {
+  status: string;
+  cancel_at_period_end?: boolean | null;
+};
+
+export function isPremiumStripeSubscription(subscription: StripeSubscriptionAccess) {
+  if (subscription.cancel_at_period_end) {
+    return false;
+  }
+
+  return PREMIUM_SUBSCRIPTION_STATUSES.has(subscription.status);
 }
 
-export function planFromStripeStatus(status: string): "premium" | "basic" {
-  return isPremiumStripeStatus(status) ? "premium" : "basic";
+export function planFromStripeSubscription(
+  subscription: StripeSubscriptionAccess
+): "premium" | "basic" {
+  return isPremiumStripeSubscription(subscription) ? "premium" : "basic";
 }

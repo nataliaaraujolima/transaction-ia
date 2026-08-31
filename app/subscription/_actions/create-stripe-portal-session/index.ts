@@ -7,6 +7,7 @@ import {
   LEGACY_CLERK_STRIPE_CUSTOMER_ID_METADATA_KEY,
   STRIPE_API_VERSION,
 } from "@/app/subscription/_constants/stripe-metadata";
+import { getSubscriptionBillingReturnUrl } from "@/app/subscription/_helpers/get-app-base-url";
 import { getClerkMetadataString } from "@/app/subscription/_helpers/get-clerk-metadata-string";
 
 export const createStripePortalSession = async () => {
@@ -34,13 +35,22 @@ export const createStripePortalSession = async () => {
     };
   }
 
+  let returnUrl: string;
+  try {
+    returnUrl = getSubscriptionBillingReturnUrl();
+  } catch {
+    return {
+      error: "App URL is not set",
+    };
+  }
+
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: STRIPE_API_VERSION,
   });
 
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: stripeCustomerId,
-    return_url: "http://localhost:3000/subscription",
+    return_url: returnUrl,
   });
 
   return { url: portalSession.url };
