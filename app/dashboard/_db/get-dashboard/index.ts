@@ -1,4 +1,4 @@
-import { TransactionSource, TransactionType } from "@prisma/client";
+import { TransactionType } from "@prisma/client";
 import { db } from "@/app/_lib/prisma";
 import type { DashboardData, TotalExpensePerCategory } from "../../_types/dashboard";
 
@@ -16,9 +16,6 @@ export async function getDashboard({ userId, where }: IGetDashboardProps): Promi
   const filters = {
     ...where,
     userId,
-    source: {
-      in: [TransactionSource.MANUAL, TransactionSource.BANK],
-    },
   };
 
   const depositsTotal = Number(
@@ -69,6 +66,11 @@ export async function getDashboard({ userId, where }: IGetDashboardProps): Promi
       },
       _sum: {
         amount: true,
+      },
+      orderBy: {
+        _sum: {
+          amount: "desc",
+        },
       },
     })
   ).map((category) => ({

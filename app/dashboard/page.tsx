@@ -41,8 +41,8 @@ const Dashboard = async ({ searchParams }: DashboardProps) => {
 
   const where = {
     date: {
-      gte: new Date(currentYear, monthIndex, 1),
-      lt: new Date(currentYear, monthIndex + 1, 1),
+      gte: new Date(Date.UTC(currentYear, monthIndex, 1)),
+      lt: new Date(Date.UTC(currentYear, monthIndex + 1, 1)),
     },
   };
 

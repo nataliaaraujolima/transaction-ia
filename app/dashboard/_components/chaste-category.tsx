@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/app/shared/utils";
 import { CardContent, CardHeader, CardTitle } from "../../shared/_components/ui/card";
 import { Progress } from "../../shared/_components/ui/progress";
 import { TRANSACTION_CATEGORY_LABELS } from "../../transaction/_constants/transactions";
@@ -20,9 +21,13 @@ export function ChartCategory({ expensesPerCategory }: ChartCategoryProps) {
       <CardContent className={`space-y-6 pt-4 ${overlayScroll}`}>
         {expensesPerCategory.map((category) => (
           <div key={category.category} className="space-y-2">
-            <div className="flex w-full justify-between">
-              <p className="text-sm font-bold">{TRANSACTION_CATEGORY_LABELS[category.category]}</p>
-              <p className="text-sm font-bold">{category.percentageOfTotal}%</p>
+            <div className="flex w-full justify-between gap-4">
+              <p className="text-sm font-bold">
+                {TRANSACTION_CATEGORY_LABELS[category.category] ?? category.category}
+              </p>
+              <p className="text-sm font-bold">
+                {formatCurrency(category.totalAmount)} · {category.percentageOfTotal}%
+              </p>
             </div>
 
             <Progress value={category.percentageOfTotal} />
@@ -31,7 +36,7 @@ export function ChartCategory({ expensesPerCategory }: ChartCategoryProps) {
 
         {expensesPerCategory.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            Faça sua primeira transação para ver os gastos por categoria.
+            Nenhuma despesa neste mês para mostrar por categoria.
           </p>
         )}
       </CardContent>
